@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LAZFORT Hospital ERP - 3D Operations Platform & Doctor Profile</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+
+    .perspective-container { perspective: 1200px; }
+    
+    .card-3d-tilt {
+      transform-style: preserve-3d;
+      transition: transform 0.25s ease-out, box-shadow 0.25s ease-out;
+      will-change: transform, box-shadow;
+    }
+    .card-3d-tilt:hover {
+      transform: translateY(-6px) rotateX(3deg) rotateY(-2deg) scale(1.015);
+      box-shadow: 0 25px 40px -10px rgba(2, 132, 199, 0.25), 0 10px 20px -5px rgba(0, 0, 0, 0.08);
+    }
+
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.06), 0 20px 25px -5px rgba(2, 132, 199, 0.04);
+    }
+
+    .token-3d-badge {
+      background: linear-gradient(135deg, #ffffff 0%, #e2eaf4 100%);
+      box-shadow: 5px 5px 12px rgba(166, 180, 200, 0.5), -5px -5px 12px #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      position: relative;
+    }
+    .token-3d-badge::before {
+      content: '';
+      position: absolute;
+      left: -6px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #f1f5f9;
+      box-shadow: inset 1px 1px 3px rgba(0,0,0,0.15);
+    }
+
+    @keyframes ecg-crawl {
+      0% { stroke-dashoffset: 1200; }
+      100% { stroke-dashoffset: 0; }
+    }
+    .ecg-line {
+      stroke-dasharray: 600;
+      animation: ecg-crawl 4.5s linear infinite;
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 4px #0284c7); }
+      50% { transform: scale(1.08); filter: drop-shadow(0 0 12px #38bdf8); }
+    }
+    .heart-pulse { animation: pulse-glow 1.8s infinite ease-in-out; }
+
+    @keyframes stamp-slam {
+      0% { transform: scale(3) rotate(-35deg); opacity: 0; }
+      70% { transform: scale(0.95) rotate(-8deg); opacity: 0.9; }
+      100% { transform: scale(1) rotate(-10deg); opacity: 1; }
+    }
+    .seal-slam { animation: stamp-slam 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f8fafc; }
+    ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 4px; }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-800 antialiased min-h-screen flex flex-col bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black">
+
+  <!-- ================= TOP NAVIGATION BAR ================= -->
+  <header class="h-20 bg-slate-900/80 backdrop-blur-xl border-b border-white/10 px-6 flex items-center justify-between sticky top-0 z-40 shadow-2xl">
+    <div class="flex items-center space-x-4">
+      <!-- 3D Holographic Hospital Logo -->
+      <div class="relative w-12 h-12 rounded-2xl bg-gradient-to-tr from-sky-500 via-brand-500 to-indigo-600 p-0.5 shadow-lg shadow-sky-500/30 heart-pulse">
+        <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center text-white font-extrabold text-xl tracking-tighter">
+          <span class="bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-indigo-300">LZ</span>
+        </div>
+        <div class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-emerald-400 border-2 border-slate-950 rounded-full animate-ping"></div>
+        <div class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-emerald-400 border-2 border-slate-950 rounded-full"></div>
+      </div>
+
+      <div>
+        <div class="flex items-center space-x-2.5">
+          <h1 class="font-black text-xl text-white tracking-tight">LAZFORT</h1>
+          <span class="text-[10px] uppercase font-extrabold tracking-widest bg-gradient-to-r from-sky-500 to-indigo-500 text-white px-2.5 py-0.5 rounded-full shadow-sm">
+            Hospital ERP 3D
+          </span>
+          <span class="text-xs text-emerald-400 bg-emerald-950/70 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-medium hidden sm:inline-flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            NABH Audit Ready &bull; Tenant Isolation
+          </span>
+        </div>
+        <p class="text-xs text-slate-400 flex items-center gap-1.5 mt-0.5">
+          <span>Lazfort Memorial Hospital & Research Centre</span> &bull; 
+          <span class="text-slate-300 font-semibold">Indiranagar Main Campus, Bengaluru</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- Active Persona Switcher, Clock & Clickable Profile -->
+    <div class="flex items-center space-x-4">
+      <!-- Live Clock -->
+      <div class="hidden lg:flex flex-col text-right pr-4 border-r border-white/10 text-xs">
+        <span id="live-clock" class="mono font-bold text-sky-300 text-sm">12:35:00 PM IST</span>
+        <span class="text-slate-400 text-[11px]">OPD Capacity: <strong class="text-emerald-400">92% Active</strong></span>
+      </div>
+
+      <!-- Quick Role Switcher -->
+      <div class="relative bg-white/5 border border-white/10 p-1 rounded-2xl backdrop-blur-md flex items-center gap-1">
+        <select id="role-select" onchange="handleRoleSwitch(this.value)" class="text-xs font-bold bg-slate-800 text-white border border-white/20 rounded-xl px-2.5 py-1.5 focus:outline-none cursor-pointer hover:bg-slate-700 transition">
+          <option value="doctor">👨‍⚕️ Switch: Doctor</option>
+          <option value="reception">👩‍💼 Switch: Reception</option>
+          <option value="billing">💳 Switch: Billing</option>
+          <option value="admin">🛡️ Switch: Admin</option>
+        </select>
+      </div>
+
+      <!-- CIRCULAR PROFILE ICON (Opens Doctor Account Profile Modal) -->
+      <button onclick="openDoctorProfileModal()" id="profile-icon-btn"
+        class="relative group focus:outline-none"
+        title="Click to view Account Profile">
+        <!-- Circular gradient ring -->
+        <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-sky-500 via-indigo-500 to-purple-600 p-0.5 shadow-lg shadow-sky-500/40 group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-sky-500/50 transition-all duration-200">
+          <div class="w-full h-full rounded-full bg-slate-950 flex items-center justify-center font-black text-sm text-white">
+            <span id="nav-avatar-initial">R</span>
+          </div>
+        </div>
+        <!-- Online dot -->
+        <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-400 border-2 border-slate-900 rounded-full"></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ================= MAIN LAYOUT WITH SIDEBAR ================= -->
+  <div class="flex flex-1">
+    <!-- Left 3D Glass Sidebar -->
+    <aside class="w-64 bg-slate-950/80 backdrop-blur-xl text-slate-300 flex flex-col justify-between shrink-0 p-4 border-r border-white/10">
+      <div>
+        <div class="px-3 mb-4">
+          <p class="text-[11px] font-extrabold uppercase tracking-widest text-slate-500">
+            Hospital Workspaces
+          </p>
+        </div>
+
+        <nav class="space-y-1.5" id="nav-list">
+          <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-xs font-bold bg-gradient-to-r from-sky-600 to-blue-700 text-white shadow-lg shadow-sky-600/30 transition transform hover:translate-x-1">
+            <span class="text-base">📊</span>
+            <span>Dashboard & Analytics</span>
+          </button>
+          <button onclick="switchTab('queue')" id="nav-queue" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/5 transition transform hover:translate-x-1">
+            <span class="text-base">⏱️</span>
+            <span>OPD Queue Board</span>
+            <span class="ml-auto text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-1.5 py-0.5 rounded-full font-bold">4 Live</span>
+          </button>
+          <button onclick="switchTab('consult')" id="nav-consult" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/5 transition transform hover:translate-x-1">
+            <span class="text-base">🩺</span>
+            <span>Doctor OPD Consult</span>
+            <span class="ml-auto w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+          </button>
+          <button onclick="switchTab('patients')" id="nav-patients" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/5 transition transform hover:translate-x-1">
+            <span class="text-base">👥</span>
+            <span>Patients & UHID Master</span>
+          </button>
+          <button onclick="switchTab('billing')" id="nav-billing" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/5 transition transform hover:translate-x-1">
+            <span class="text-base">💳</span>
+            <span>Billing, Invoices & Tax</span>
+          </button>
+          <button onclick="switchTab('tariffs')" id="nav-tariffs" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/5 transition transform hover:translate-x-1">
+            <span class="text-base">📑</span>
+            <span>Service Tariffs Schedule</span>
+          </button>
+          <button onclick="switchTab('audit')" id="nav-audit" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/5 transition transform hover:translate-x-1">
+            <span class="text-base">🛡️</span>
+            <span>Immutable Audit Trail</span>
+          </button>
+        </nav>
+      </div>
+
+      <div class="p-3.5 rounded-2xl bg-gradient-to-b from-white/10 to-white/5 border border-white/10 text-xs text-slate-300 space-y-2 backdrop-blur-md">
+        <div class="flex items-center justify-between">
+          <span class="font-bold text-white text-xs">Doctor Account</span>
+          <button onclick="openDoctorProfileModal()" class="text-[10px] font-bold text-sky-400 hover:underline">View Card &rarr;</button>
+        </div>
+        <p class="text-[11px] text-slate-400">Dr. Rajesh Sharma &bull; Lic: MCI-2008-41029</p>
+      </div>
+    </aside>
+
+    <!-- Workspaces Container -->
+    <main class="flex-1 p-6 max-w-7xl mx-auto w-full overflow-y-auto">
+
+      <!-- ================= TAB 1: OPERATIONS DASHBOARD ================= -->
+      <section id="tab-dashboard" class="space-y-6">
+        <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-sky-950 to-indigo-950 border border-white/15 p-7 text-white shadow-2xl">
+          <div class="absolute -right-10 -bottom-10 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+          <!-- Animated Continuous Cardiac ECG Waveform -->
+          <div class="absolute inset-0 opacity-20 flex items-center pointer-events-none">
+            <svg class="w-full h-24" viewBox="0 0 1200 100" fill="none">
+              <path class="ecg-line stroke-sky-400" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                d="M0,50 L200,50 L220,50 L230,20 L240,80 L250,5 L260,95 L270,50 L350,50 L500,50 L520,50 L530,20 L540,80 L550,5 L560,95 L570,50 L650,50 L800,50 L820,50 L830,20 L840,80 L850,5 L860,95 L870,50 L950,50 L1100,50 L1120,50 L1130,20 L1140,80 L1150,5 L1160,95 L1170,50 L1200,50" />
+            </svg>
+          </div>
+
+          <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div class="space-y-2">
+              <div class="flex items-center gap-2">
+                <span class="text-xs uppercase font-extrabold tracking-widest bg-sky-500/30 text-sky-300 border border-sky-400/30 px-3 py-1 rounded-full">
+                  Live Clinical Command Center
+                </span>
+                <span class="text-xs text-slate-300 flex items-center gap-1">
+                  <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> Real-time Sync
+                </span>
+              </div>
+              <h2 class="text-2xl md:text-3xl font-black tracking-tight text-white">
+                Welcome, <span id="welcome-user">Dr. Rajesh Sharma, MD</span>
+              </h2>
+              <p class="text-xs text-sky-200/80 max-w-xl leading-relaxed">
+                Head of General Medicine &bull; 4 Patients waiting in lobby &bull; Turnaround target: 14 mins.
+              </p>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3">
+              <button onclick="openDoctorProfileModal()" class="bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white font-bold text-xs px-5 py-3 rounded-2xl shadow-lg transition transform hover:scale-105 active:scale-95 flex items-center gap-2">
+                <span>👤 Open Doctor Account Profile</span>
+              </button>
+              <button onclick="switchTab('consult')" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs px-5 py-3 rounded-2xl shadow-lg transition transform hover:scale-105 active:scale-95 flex items-center gap-2">
+                <span>🩺 Launch Consult</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 3D Tilt Metric Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 perspective-container">
+          <div class="card-3d-tilt glass-panel rounded-3xl p-6 border border-white/80 shadow-xl">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Today's Appointments</p>
+                <h3 class="text-3xl font-black text-slate-900 mt-2 mono">18</h3>
+              </div>
+              <div class="w-12 h-12 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center text-xl shadow-inner">📅</div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+              <span class="text-emerald-700 font-bold">↑ +15% vs yesterday</span>
+            </div>
+          </div>
+
+          <div class="card-3d-tilt glass-panel rounded-3xl p-6 border border-white/80 shadow-xl">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="text-[11px] font-extrabold uppercase tracking-wider text-amber-600">Waiting in Lobby</p>
+                <h3 class="text-3xl font-black text-amber-900 mt-2 mono">4 Tokens</h3>
+              </div>
+              <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl shadow-inner">⏳</div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+              <span class="text-amber-800 font-bold">Avg Wait: 12m</span>
+            </div>
+          </div>
+
+          <div class="card-3d-tilt glass-panel rounded-3xl p-6 border border-white/80 shadow-xl">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="text-[11px] font-extrabold uppercase tracking-wider text-emerald-600">Encounters Completed</p>
+                <h3 class="text-3xl font-black text-emerald-900 mt-2 mono">12 Patients</h3>
+              </div>
+              <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shadow-inner">✅</div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+              <span class="text-emerald-800 font-bold">100% Locked with Rx</span>
+            </div>
+          </div>
+
+          <div class="card-3d-tilt glass-panel rounded-3xl p-6 border border-white/80 shadow-xl">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="text-[11px] font-extrabold uppercase tracking-wider text-indigo-600">Daily Collections</p>
+                <h3 class="text-3xl font-black text-indigo-950 mt-2 mono">₹18,450</h3>
+              </div>
+              <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl shadow-inner">💳</div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+              <span class="text-indigo-800 font-bold">₹16,200 Collected</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 2: OPD QUEUE ================= -->
+      <section id="tab-queue" class="space-y-6 hidden">
+        <div class="glass-panel p-5 rounded-3xl border border-white/80 shadow-xl flex justify-between items-center">
+          <div>
+            <h3 class="text-lg font-black text-slate-900">3D Outpatient Token Board (FR-006)</h3>
+            <p class="text-xs text-slate-500">Live ticket tokens with physical queue movement</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="glass-panel p-5 rounded-3xl border border-white/80 shadow-xl space-y-4">
+            <span class="text-xs font-black uppercase text-amber-700 flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-amber-500 animate-pulse"></span>
+              Waiting in Lobby (2)
+            </span>
+            <div class="token-3d-badge p-4 rounded-2xl space-y-2">
+              <div class="flex justify-between"><h4 class="text-2xl font-black mono text-slate-900">MED-01</h4><span class="text-xs font-mono text-slate-500">Wait: 14m</span></div>
+              <p class="font-bold text-slate-900">Ramesh Kumar Gupta (54y, M)</p>
+              <button onclick="switchTab('consult')" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-1.5 rounded-xl text-xs transition">Call into Room &rarr;</button>
+            </div>
+          </div>
+          <div class="glass-panel p-5 rounded-3xl border border-white/80 shadow-xl space-y-4">
+            <span class="text-xs font-black uppercase text-sky-700 flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-sky-500 animate-ping"></span>
+              In Doctor's Room (1)
+            </span>
+            <div class="p-4 rounded-2xl bg-sky-50 border border-sky-300 space-y-2">
+              <div class="flex justify-between"><h4 class="text-2xl font-black mono text-sky-900">CARD-02</h4><span class="text-[10px] font-bold bg-sky-500 text-white px-2 py-0.5 rounded-full">In Room</span></div>
+              <p class="font-bold text-slate-900">Sunita Devi Sharma (48y, F)</p>
+              <button onclick="switchTab('consult')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 rounded-xl text-xs transition">Open Clinical Notes &rarr;</button>
+            </div>
+          </div>
+          <div class="glass-panel p-5 rounded-3xl border border-white/80 shadow-xl space-y-4">
+            <span class="text-xs font-black uppercase text-emerald-700">Completed (3)</span>
+            <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 text-xs">
+              <p class="font-bold text-slate-900">Arvind Narayanan</p>
+              <span class="text-emerald-700 font-bold">Encounter Finalized</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 3: CONSULTATION ================= -->
+      <section id="tab-consult" class="space-y-6 hidden">
+        <div class="glass-panel p-6 rounded-3xl border border-white/80 shadow-xl flex justify-between items-center">
+          <div>
+            <h3 class="text-xl font-black text-slate-900">Ramesh Kumar Gupta (54y, Male)</h3>
+            <p class="text-xs text-slate-500">UHID: LZF-2026-0001 &bull; Blood: B+ &bull; Allergies: Penicillin, Sulfa</p>
+          </div>
+          <button onclick="alert('Clinical encounter finalized and digitally locked!')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-5 py-2.5 rounded-2xl shadow-lg transition">
+            🛡️ Finalize & Issue Rx
+          </button>
+        </div>
+
+        <div class="glass-panel p-6 rounded-3xl border border-white/80 shadow-xl space-y-3">
+          <h4 class="text-xs font-black uppercase tracking-wider text-slate-600">Vitals Matrix</h4>
+          <div class="grid grid-cols-4 gap-3 text-xs text-center">
+            <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200"><span class="text-slate-400 block">BP</span><strong class="text-lg mono">138/88</strong></div>
+            <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200"><span class="text-slate-400 block">Pulse</span><strong class="text-lg mono">78 bpm</strong></div>
+            <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200"><span class="text-slate-400 block">Temp</span><strong class="text-lg mono">98.4°F</strong></div>
+            <div class="p-3 bg-sky-50 rounded-2xl border border-sky-200"><span class="text-sky-700 block">BMI</span><strong class="text-lg mono text-sky-950">26.5</strong></div>
+          </div>
+        </div>
+
+        <div class="glass-panel p-6 rounded-3xl border border-white/80 shadow-xl space-y-3 text-xs">
+          <h4 class="text-xs font-black uppercase tracking-wider text-slate-600">Diagnosis & Prescription</h4>
+          <input type="text" value="Type 2 Diabetes Mellitus with early Peripheral Neuropathy + Stage 1 HTN (E11.42)" class="w-full p-3 bg-slate-50 rounded-2xl border border-slate-200 font-bold text-slate-900">
+          <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200">
+            <strong>Tab. Metformin Hydrochloride SR 1000 mg</strong> &bull; Oral &bull; 1-0-1 &bull; 30 Days
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 4: PATIENTS ================= -->
+      <section id="tab-patients" class="space-y-6 hidden">
+        <div class="glass-panel p-5 rounded-3xl border border-white/80 shadow-xl flex justify-between items-center">
+          <h3 class="text-lg font-black text-slate-900">Patient Directory & UHID Master (FR-004)</h3>
+          <button onclick="alert('Register new patient modal')" class="bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs px-4 py-2 rounded-xl">+ New Patient</button>
+        </div>
+        <div class="glass-panel rounded-3xl border border-white/80 shadow-xl overflow-hidden text-xs">
+          <table class="w-full text-left">
+            <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-extrabold uppercase">
+              <tr><th class="py-3 px-4">UHID</th><th class="py-3 px-4">Name</th><th class="py-3 px-4">Phone</th><th class="py-3 px-4">Blood</th></tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr><td class="py-3.5 px-4 font-bold mono text-sky-700">LZF-2026-0001</td><td class="py-3.5 px-4 font-bold">Ramesh Kumar Gupta</td><td class="py-3.5 px-4 mono">9876543210</td><td class="py-3.5 px-4 font-bold text-rose-600">B+</td></tr>
+              <tr><td class="py-3.5 px-4 font-bold mono text-sky-700">LZF-2026-0002</td><td class="py-3.5 px-4 font-bold">Sunita Devi Sharma</td><td class="py-3.5 px-4 mono">9876501234</td><td class="py-3.5 px-4 font-bold text-rose-600">O+</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================= TAB 5: BILLING ================= -->
+      <section id="tab-billing" class="space-y-6 hidden">
+        <div class="glass-panel p-5 rounded-3xl border border-white/80 shadow-xl flex justify-between items-center">
+          <h3 class="text-lg font-black text-slate-900">Hospital Billing & Cashier Desk (FR-010)</h3>
+        </div>
+        <div class="glass-panel rounded-3xl border border-white/80 shadow-xl overflow-hidden text-xs">
+          <table class="w-full text-left">
+            <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-extrabold uppercase">
+              <tr><th class="py-3 px-4">Invoice</th><th class="py-3 px-4">Patient</th><th class="py-3 px-4 text-right">Total</th><th class="py-3 px-4 text-center">Status</th><th class="py-3 px-4 text-right">Receipt</th></tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr>
+                <td class="py-3.5 px-4 font-bold mono">INV-2026-0001</td>
+                <td class="py-3.5 px-4 font-bold">Ramesh Kumar Gupta</td>
+                <td class="py-3.5 px-4 text-right font-black mono">₹1,214.25</td>
+                <td class="py-3.5 px-4 text-center"><span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold">PAID</span></td>
+                <td class="py-3.5 px-4 text-right"><button onclick="alert('Official printable receipt modal')" class="bg-sky-600 text-white px-3 py-1 rounded-lg font-bold">View Receipt</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================= TAB 6: TARIFFS ================= -->
+      <section id="tab-tariffs" class="space-y-6 hidden">
+        <div class="glass-panel p-5 rounded-3xl border border-white/80 shadow-xl">
+          <h3 class="text-lg font-black text-slate-900">Tariff Catalogue (FR-009)</h3>
+          <p class="text-xs text-slate-500">OPD consultation rates and diagnostic investigations</p>
+        </div>
+      </section>
+
+      <!-- ================= TAB 7: AUDIT ================= -->
+      <section id="tab-audit" class="space-y-6 hidden">
+        <div class="glass-panel p-5 rounded-3xl border border-white/80 shadow-xl">
+          <h3 class="text-lg font-black text-slate-900">Immutable Audit Trail (FR-013)</h3>
+          <p class="text-xs text-slate-500">Cryptographically verifiable sequence of clinical and billing operations</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ================= DOCTOR ACCOUNT PROFILE DETAILS MODAL (3D DESIGN) ================= -->
+  <div id="modal-doctor-profile" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full p-6 text-xs text-slate-800 space-y-5 animate-in fade-in zoom-in-95 duration-200">
+      <div class="flex justify-between items-center pb-3 border-b border-slate-200">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">👨‍⚕️</span>
+          <h4 class="font-black text-slate-900 text-base">Doctor & Clinical Practitioner Profile</h4>
+        </div>
+        <button onclick="closeDoctorProfileModal()" class="text-slate-400 hover:text-slate-800 font-black text-lg p-1">&times;</button>
+      </div>
+
+      <!-- 3D Holographic Doctor Header Card -->
+      <div class="p-6 rounded-3xl bg-gradient-to-br from-slate-900 via-sky-950 to-indigo-950 text-white shadow-xl relative overflow-hidden">
+        <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-sky-500/20 rounded-full blur-2xl pointer-events-none"></div>
+
+        <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div class="flex items-center space-x-4">
+            <div class="relative">
+              <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-sky-400 to-indigo-500 p-0.5 shadow-lg">
+                <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center font-black text-2xl text-white">
+                  <span id="modal-avatar-initial">R</span>
+                </div>
+              </div>
+              <span class="absolute -bottom-1 -right-1 bg-emerald-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full border border-slate-950">
+                ACTIVE
+              </span>
+            </div>
+
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 class="text-xl font-black text-white" id="modal-doctor-name">Dr. Rajesh Sharma, MD</h3>
+                <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-[10px] font-black">
+                  VERIFIED
+                </span>
+              </div>
+              <p class="text-sky-200 text-xs mt-0.5 font-medium" id="modal-doctor-spec">
+                Internal Medicine & Diabetology
+              </p>
+              <p class="text-slate-400 text-[11px] mt-0.5">
+                Department: <strong class="text-white">General Medicine & Clinical Triage</strong>
+              </p>
+            </div>
+          </div>
+
+          <div class="sm:text-right space-y-1">
+            <span class="text-[10px] uppercase font-bold tracking-wider text-sky-300 block">Registration License</span>
+            <span class="font-mono font-bold text-xs bg-white/10 px-3 py-1 rounded-xl border border-white/20 inline-block text-white" id="modal-doctor-lic">
+              MCI-2008-41029
+            </span>
+            <p class="text-[10px] text-slate-400">Karnataka Medical Council</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3 Key Metric Badges -->
+      <div class="grid grid-cols-3 gap-3 text-center">
+        <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200">
+          <span class="text-slate-400 text-[11px] font-bold block uppercase">Consultation Fee</span>
+          <span class="text-lg font-black text-slate-900 mono" id="modal-doctor-fee">₹600 / visit</span>
+        </div>
+        <div class="p-3.5 bg-emerald-50 rounded-2xl border border-emerald-200">
+          <span class="text-emerald-700 text-[11px] font-bold block uppercase">Clinical Status</span>
+          <span class="text-lg font-black text-emerald-900 mono">On Duty</span>
+        </div>
+        <div class="p-3.5 bg-sky-50 rounded-2xl border border-sky-200">
+          <span class="text-sky-700 text-[11px] font-bold block uppercase">Patient Ratings</span>
+          <span class="text-lg font-black text-sky-950 mono">4.9 ★ (1,480+)</span>
+        </div>
+      </div>
+
+      <!-- Account & OPD Schedule Details Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- Contact & Location -->
+        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+          <h5 class="font-black text-slate-800 text-xs uppercase tracking-wider">Contact & Practice Location</h5>
+          <p class="text-slate-600 flex items-center gap-2">
+            <span>✉️</span> <strong id="modal-doctor-email">dr.rajesh@lazfort.com</strong>
+          </p>
+          <p class="text-slate-600 flex items-center gap-2">
+            <span>📞</span> <span class="mono" id="modal-doctor-phone">+91 98450 22002</span>
+          </p>
+          <p class="text-slate-600 flex items-center gap-2">
+            <span>🏥</span> <span>Main Campus &bull; 1st Floor, OPD Wing A, Room 104</span>
+          </p>
+        </div>
+
+        <!-- Schedule & RBAC Privileges -->
+        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+          <h5 class="font-black text-slate-800 text-xs uppercase tracking-wider">OPD Timings & Privileges</h5>
+          <p class="text-slate-600 flex items-center gap-2">
+            <span>⏰</span> <span>Mon - Sat: <strong>09:00 AM - 04:30 PM</strong></span>
+          </p>
+          <p class="text-slate-600 flex items-center gap-2">
+            <span>🛡️</span> <span>Authorization: <strong>BR-07 Finalize & Rx Lock</strong></span>
+          </p>
+          <p class="text-slate-600 flex items-center gap-2">
+            <span>🔒</span> <span>Session: <strong>Encrypted JWT (24h)</strong></span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="flex justify-between items-center pt-3 border-t border-slate-200">
+        <span class="text-[11px] text-slate-400">
+          Practitioner ID: <strong class="mono text-slate-700" id="modal-doctor-id">USR-DOC-001</strong>
+        </span>
+        <div class="space-x-2">
+          <button onclick="alert('Doctor settings & schedule management dialog');" class="px-4 py-2 border border-slate-200 rounded-xl hover:bg-slate-50 font-bold text-slate-700 transition">
+            Edit Schedule
+          </button>
+          <button onclick="closeDoctorProfileModal()" class="px-4 py-2 bg-slate-900 hover:bg-black text-white rounded-xl font-bold transition">
+            Close Profile
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive JavaScript Engine -->
+  <script>
+    setInterval(() => {
+      const now = new Date();
+      document.getElementById('live-clock').innerText = now.toLocaleTimeString('en-IN', { hour12: true }) + ' IST';
+    }, 1000);
+
+    function switchTab(tabId) {
+      const tabs = ['dashboard', 'queue', 'consult', 'patients', 'billing', 'tariffs', 'audit'];
+      tabs.forEach(t => {
+        const el = document.getElementById('tab-' + t);
+        const nav = document.getElementById('nav-' + t);
+        if (el) el.classList.add('hidden');
+        if (nav) {
+          nav.className = 'w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/5 transition transform hover:translate-x-1';
+        }
+      });
+
+      const activeEl = document.getElementById('tab-' + tabId);
+      const activeNav = document.getElementById('nav-' + tabId);
+      if (activeEl) activeEl.classList.remove('hidden');
+      if (activeNav) {
+        activeNav.className = 'w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-xs font-bold bg-gradient-to-r from-sky-600 to-blue-700 text-white shadow-lg shadow-sky-600/30 transition transform hover:translate-x-1';
+      }
+    }
+
+    function handleRoleSwitch(role) {
+      const navDocName = document.getElementById('nav-doctor-name');
+      const navDocSpec = document.getElementById('nav-doctor-spec');
+      const welcomeUser = document.getElementById('welcome-user');
+      const navInit = document.getElementById('nav-avatar-initial');
+      const modalInit = document.getElementById('modal-avatar-initial');
+      const modalDocName = document.getElementById('modal-doctor-name');
+      const modalDocSpec = document.getElementById('modal-doctor-spec');
+      const modalDocLic = document.getElementById('modal-doctor-lic');
+      const modalDocFee = document.getElementById('modal-doctor-fee');
+      const modalDocEmail = document.getElementById('modal-doctor-email');
+      const modalDocPhone = document.getElementById('modal-doctor-phone');
+      const modalDocId = document.getElementById('modal-doctor-id');
+
+      if (role === 'doctor') {
+        navDocName.innerText = 'Dr. Rajesh Sharma, MD';
+        navDocSpec.innerText = 'Consultant Physician • View Profile';
+        welcomeUser.innerText = 'Dr. Rajesh Sharma, MD';
+        navInit.innerText = 'R';
+        modalInit.innerText = 'R';
+        modalDocName.innerText = 'Dr. Rajesh Sharma, MD';
+        modalDocSpec.innerText = 'Internal Medicine & Diabetology';
+        modalDocLic.innerText = 'MCI-2008-41029';
+        modalDocFee.innerText = '₹600 / visit';
+        modalDocEmail.innerText = 'dr.rajesh@lazfort.com';
+        modalDocPhone.innerText = '+91 98450 22002';
+        modalDocId.innerText = 'USR-DOC-001';
+        switchTab('consult');
+      } else if (role === 'reception') {
+        navDocName.innerText = 'Pooja Verma';
+        navDocSpec.innerText = 'Front Desk Executive • View Profile';
+        welcomeUser.innerText = 'Pooja Verma';
+        navInit.innerText = 'P';
+        modalInit.innerText = 'P';
+        modalDocName.innerText = 'Pooja Verma';
+        modalDocSpec.innerText = 'Patient Registration & Queue Handling';
+        modalDocLic.innerText = 'STAFF-REC-441';
+        modalDocFee.innerText = 'N/A';
+        modalDocEmail.innerText = 'reception@lazfort.com';
+        modalDocPhone.innerText = '+91 98450 55005';
+        modalDocId.innerText = 'USR-REC-001';
+        switchTab('queue');
+      } else if (role === 'billing') {
+        navDocName.innerText = 'Amit Saxena';
+        navDocSpec.innerText = 'Billing Specialist • View Profile';
+        welcomeUser.innerText = 'Amit Saxena';
+        navInit.innerText = 'A';
+        modalInit.innerText = 'A';
+        modalDocName.innerText = 'Amit Saxena';
+        modalDocSpec.innerText = 'Invoicing & TPA Settlement';
+        modalDocLic.innerText = 'STAFF-BIL-882';
+        modalDocFee.innerText = 'N/A';
+        modalDocEmail.innerText = 'billing@lazfort.com';
+        modalDocPhone.innerText = '+91 98450 66006';
+        modalDocId.innerText = 'USR-BIL-001';
+        switchTab('billing');
+      } else if (role === 'admin') {
+        navDocName.innerText = 'Dr. Alok Verma';
+        navDocSpec.innerText = 'Hospital Super Admin • View Profile';
+        welcomeUser.innerText = 'Dr. Alok Verma';
+        navInit.innerText = 'A';
+        modalInit.innerText = 'A';
+        modalDocName.innerText = 'Dr. Alok Verma, MHA';
+        modalDocSpec.innerText = 'Hospital Administration & Governance';
+        modalDocLic.innerText = 'KMC-ADMIN-4401';
+        modalDocFee.innerText = 'N/A';
+        modalDocEmail.innerText = 'admin@lazfort.com';
+        modalDocPhone.innerText = '+91 98450 11001';
+        modalDocId.innerText = 'USR-ADM-001';
+        switchTab('dashboard');
+      }
+    }
+
+    function openDoctorProfileModal() {
+      document.getElementById('modal-doctor-profile').classList.remove('hidden');
+    }
+    function closeDoctorProfileModal() {
+      document.getElementById('modal-doctor-profile').classList.add('hidden');
+    }
+  </script>
+</body>
+</html>
