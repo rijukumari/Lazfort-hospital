@@ -17,7 +17,8 @@ const userSchema = new mongoose.Schema({
       'nurse',
       'billing_executive',
       'pharmacist',
-      'lab_technician'
+      'lab_technician',
+      'patient'
     ], 
     required: true 
   },

@@ -138,6 +138,51 @@ export const initialUsers = [
     licenseNumber: 'INC-2010-87612',
     consultationFee: 0,
     active: true
+  },
+  {
+    tenantId: 'TEN-LAZFORT-001',
+    userId: 'USR-SAAS-001',
+    username: 'superadmin',
+    email: 'superadmin@lazfort.com',
+    passwordHash: hashPassword('Super@123'),
+    fullName: 'Vikramaditya Singhania',
+    role: 'super_admin',
+    department: 'Global Cloud Platform Operations',
+    specialization: 'Multi-Tenant Governance & Cloud Security',
+    phone: '+91 98450 00001',
+    licenseNumber: 'SAAS-GLOBAL-ROOT',
+    consultationFee: 0,
+    active: true
+  },
+  {
+    tenantId: 'TEN-LAZFORT-001',
+    userId: 'USR-PHM-001',
+    username: 'pharmacist',
+    email: 'pharmacy@lazfort.com',
+    passwordHash: hashPassword('Staff@123'),
+    fullName: 'Kavita Nair, B.Pharm',
+    role: 'pharmacist',
+    department: 'Central Pharmacy & Clinical Laboratory',
+    specialization: 'Drug Dispensation & Lab Order Processing',
+    phone: '+91 98450 88008',
+    licenseNumber: 'KSPC-PHARM-2918',
+    consultationFee: 0,
+    active: true
+  },
+  {
+    tenantId: 'TEN-LAZFORT-001',
+    userId: 'USR-PAT-001',
+    username: 'patient',
+    email: 'patient@lazfort.com',
+    passwordHash: hashPassword('Patient@123'),
+    fullName: 'Ramesh Kumar (Patient UHID: LZF-2026-0001)',
+    role: 'patient',
+    department: 'Patient Self-Service Portal',
+    specialization: 'Personal Health Records & Appointments',
+    phone: '+91 98765 43210',
+    licenseNumber: 'UHID-LZF-2026-0001',
+    consultationFee: 0,
+    active: true
   }
 ];
 

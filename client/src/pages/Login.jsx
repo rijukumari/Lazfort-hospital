@@ -7,6 +7,7 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [activeRole, setActiveRole] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,15 +20,20 @@ export default function Login() {
 
   const handleQuick = async (role) => {
     setError('');
-    const res = await quickLogin(role);
-    if (!res.success) {
-      setError(res.message || 'Quick login failed');
+    setActiveRole(role);
+    try {
+      const res = await quickLogin(role);
+      if (!res.success) {
+        setError(res.message || 'Quick login failed');
+      }
+    } finally {
+      setActiveRole(null);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-sky-950 flex items-center justify-center p-4">
-      <div className="w-full max-w-4xl bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl border border-white/20 overflow-hidden grid grid-cols-1 md:grid-cols-12">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-sky-950 flex items-center justify-center p-4 py-8">
+      <div className="w-full max-w-5xl bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl border border-white/20 overflow-hidden grid grid-cols-1 md:grid-cols-12 my-auto">
         {/* Left Branding Column */}
         <div className="md:col-span-5 bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 p-8 text-white flex flex-col justify-between">
           <div>
@@ -60,8 +66,8 @@ export default function Login() {
         </div>
 
         {/* Right Form Column */}
-        <div className="md:col-span-7 p-8">
-          <div className="mb-6">
+        <div className="md:col-span-7 p-6 sm:p-8">
+          <div className="mb-5">
             <h2 className="text-xl font-bold text-slate-900">Sign in to Hospital Portal</h2>
             <p className="text-xs text-slate-500 mt-1">
               Select a quick persona to test role-based access, or enter credentials.
@@ -75,28 +81,38 @@ export default function Login() {
             </div>
           )}
 
-          {/* 1-Click Quick Demo Switchers */}
-          <div className="mb-6">
-            <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-2">
-              1-Click Instant Persona Sign-in
-            </label>
+          {/* 1-Click Quick Demo Switchers for All 8 Personas */}
+          <div className="mb-5">
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+                1-Click Instant Persona Sign-in ({demoAccounts.length} Panels)
+              </label>
+              <span className="text-[10px] text-brand-600 font-semibold">Select Panel</span>
+            </div>
+            
             <div className="grid grid-cols-2 gap-2">
-              {demoAccounts.slice(0, 4).map((acc) => (
-                <button
-                  key={acc.role}
-                  type="button"
-                  onClick={() => handleQuick(acc.role)}
-                  className="text-left p-2.5 rounded-xl border border-slate-200 hover:border-brand-500 hover:bg-brand-50/50 transition group"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-800 group-hover:text-brand-700">
-                      {acc.roleName}
+              {demoAccounts.map((acc) => {
+                const isSelected = activeRole === acc.role;
+                return (
+                  <button
+                    key={acc.role}
+                    type="button"
+                    disabled={loading}
+                    onClick={() => handleQuick(acc.role)}
+                    className="text-left p-2.5 rounded-xl border border-slate-200 hover:border-brand-500 hover:bg-brand-50/50 transition group disabled:opacity-50"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-800 group-hover:text-brand-700">
+                        {acc.roleName}
+                      </span>
+                      <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-brand-600 transition transform group-hover:translate-x-0.5" />
+                    </div>
+                    <span className="text-[11px] text-slate-500 block truncate mt-0.5">
+                      {isSelected ? 'Signing in...' : acc.name}
                     </span>
-                    <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-brand-600 transition transform group-hover:translate-x-0.5" />
-                  </div>
-                  <span className="text-[11px] text-slate-500 block truncate mt-0.5">{acc.name}</span>
-                </button>
-              ))}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -110,7 +126,7 @@ export default function Login() {
           </div>
 
           {/* Standard Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3.5">
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">Email or Username</label>
               <div className="relative">

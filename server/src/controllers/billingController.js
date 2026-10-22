@@ -7,8 +7,14 @@ import { logAuditEvent } from '../middleware/audit.js';
 
 export const getInvoices = async (req, res) => {
   try {
-    const { patientId, status } = req.query;
+    let { patientId, status } = req.query;
     let invoices = [];
+
+    // Enforce patient privacy: patients can only query their own invoices
+    if (req.user?.role === 'patient') {
+      const userUhid = req.user.licenseNumber?.replace('UHID-', '') || (req.user.fullName?.match(/LZF-\d{4}-\d{4}/)?.[0]) || 'LZF-2026-0001';
+      patientId = userUhid;
+    }
 
     if (isMongoDBActive()) {
       const filter = { tenantId: req.tenantId };
@@ -51,6 +57,14 @@ export const getInvoiceById = async (req, res) => {
 
     if (!invoice) {
       return res.status(404).json({ success: false, message: 'Invoice not found' });
+    }
+
+    // Enforce patient privacy
+    if (req.user?.role === 'patient') {
+      const userUhid = req.user.licenseNumber?.replace('UHID-', '') || (req.user.fullName?.match(/LZF-\d{4}-\d{4}/)?.[0]) || 'LZF-2026-0001';
+      if (invoice.patientId !== userUhid) {
+        return res.status(403).json({ success: false, message: 'Access denied. You can only view your own authorized invoices.' });
+      }
     }
 
     return res.json({ success: true, invoice, payments });

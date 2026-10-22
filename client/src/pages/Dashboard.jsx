@@ -16,7 +16,10 @@ import {
   ShieldAlert,
   ArrowRight,
   Activity,
-  Heart
+  Heart,
+  Server,
+  HeartPulse,
+  Pill
 } from 'lucide-react';
 
 export default function Dashboard({ setActiveTab }) {
@@ -110,6 +113,46 @@ export default function Dashboard({ setActiveTab }) {
               >
                 <Receipt className="w-4 h-4" />
                 <span>Cashier Desk</span>
+              </button>
+            )}
+
+            {user?.role === 'super_admin' && (
+              <button
+                onClick={() => setActiveTab('saas_admin')}
+                className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-extrabold text-xs px-5 py-3 rounded-2xl shadow-lg shadow-indigo-500/30 transition transform hover:scale-105 active:scale-95 flex items-center gap-2"
+              >
+                <Server className="w-4 h-4" />
+                <span>Tenant Operations</span>
+              </button>
+            )}
+
+            {user?.role === 'nurse' && (
+              <button
+                onClick={() => setActiveTab('nurse_station')}
+                className="bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-extrabold text-xs px-5 py-3 rounded-2xl shadow-lg shadow-rose-500/30 transition transform hover:scale-105 active:scale-95 flex items-center gap-2"
+              >
+                <HeartPulse className="w-4 h-4" />
+                <span>Nurse Station</span>
+              </button>
+            )}
+
+            {user?.role === 'pharmacist' && (
+              <button
+                onClick={() => setActiveTab('pharmacy_lab')}
+                className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white font-extrabold text-xs px-5 py-3 rounded-2xl shadow-lg shadow-teal-500/30 transition transform hover:scale-105 active:scale-95 flex items-center gap-2"
+              >
+                <Pill className="w-4 h-4" />
+                <span>Pharmacy & Lab</span>
+              </button>
+            )}
+
+            {user?.role === 'patient' && (
+              <button
+                onClick={() => setActiveTab('patient_portal')}
+                className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-extrabold text-xs px-5 py-3 rounded-2xl shadow-lg shadow-cyan-500/30 transition transform hover:scale-105 active:scale-95 flex items-center gap-2"
+              >
+                <UserCheck className="w-4 h-4" />
+                <span>My Health Portal</span>
               </button>
             )}
 

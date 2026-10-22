@@ -7,8 +7,15 @@ import { logAuditEvent } from '../middleware/audit.js';
 
 export const getAppointments = async (req, res) => {
   try {
-    const { date, doctorId, status } = req.query;
+    const { date, doctorId, status, patientId } = req.query;
     let appointments = [];
+
+    // Enforce patient-level isolation: patients can only query their own appointments
+    let targetPatientId = patientId;
+    if (req.user?.role === 'patient') {
+      const userUhid = req.user.licenseNumber?.replace('UHID-', '') || (req.user.fullName?.match(/LZF-\d{4}-\d{4}/)?.[0]) || 'LZF-2026-0001';
+      targetPatientId = userUhid;
+    }
 
     if (isMongoDBActive()) {
       const filter = { tenantId: req.tenantId };
@@ -21,6 +28,7 @@ export const getAppointments = async (req, res) => {
       }
       if (doctorId) filter.doctorId = doctorId;
       if (status) filter.status = status;
+      if (targetPatientId) filter.patientId = targetPatientId;
 
       appointments = await Appointment.find(filter).sort({ queueNumber: 1 }).lean();
     } else {
@@ -36,6 +44,9 @@ export const getAppointments = async (req, res) => {
       }
       if (status) {
         appointments = appointments.filter(a => a.status === status);
+      }
+      if (targetPatientId) {
+        appointments = appointments.filter(a => a.patientId === targetPatientId);
       }
       appointments.sort((a, b) => a.queueNumber - b.queueNumber);
     }
@@ -106,7 +117,7 @@ export const getQueue = async (req, res) => {
 };
 
 export const bookAppointment = async (req, res) => {
-  const {
+  let {
     patientId,
     doctorId,
     departmentId,
@@ -115,6 +126,12 @@ export const bookAppointment = async (req, res) => {
     priority = 'normal',
     reasonForVisit = ''
   } = req.body;
+
+  // Prevent patients from scheduling appointments under another patient's UHID
+  if (req.user?.role === 'patient') {
+    const userUhid = req.user.licenseNumber?.replace('UHID-', '') || (req.user.fullName?.match(/LZF-\d{4}-\d{4}/)?.[0]) || 'LZF-2026-0001';
+    patientId = userUhid;
+  }
 
   if (!patientId || !doctorId || !departmentId || !appointmentDate || !timeSlot) {
     return res.status(400).json({

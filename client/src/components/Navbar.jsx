@@ -18,31 +18,45 @@ import {
   Calendar,
   Lock,
   CheckCircle,
-  FileText
+  FileText,
+  Server,
+  HeartPulse,
+  Pill,
+  UserCheck,
+  Menu
 } from 'lucide-react';
 
-export default function Navbar() {
+export default function Navbar({ mobileOpen, setMobileOpen, activeTab, setActiveTab }) {
   const { user, tenant, quickLogin, logout } = useAuth();
   const [showSwitcher, setShowSwitcher] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
 
+  const isSuperAdmin = user?.role === 'super_admin';
+
   const getRoleIcon = (role) => {
     switch (role) {
-      case 'doctor': return <Stethoscope className="w-4 h-4 text-emerald-600" />;
+      case 'super_admin': return <Server className="w-4 h-4 text-indigo-600" />;
       case 'hospital_admin': return <ShieldCheck className="w-4 h-4 text-purple-600" />;
-      case 'billing_executive': return <CreditCard className="w-4 h-4 text-amber-600" />;
       case 'receptionist': return <ClipboardList className="w-4 h-4 text-blue-600" />;
+      case 'doctor': return <Stethoscope className="w-4 h-4 text-emerald-600" />;
+      case 'nurse': return <HeartPulse className="w-4 h-4 text-rose-600" />;
+      case 'billing_executive': return <CreditCard className="w-4 h-4 text-amber-600" />;
+      case 'pharmacist': return <Pill className="w-4 h-4 text-teal-600" />;
+      case 'patient': return <UserCheck className="w-4 h-4 text-cyan-600" />;
       default: return <User className="w-4 h-4 text-slate-600" />;
     }
   };
 
   const getRoleBadge = (role) => {
     switch (role) {
-      case 'doctor': return 'bg-emerald-500/10 text-emerald-700 border-emerald-300';
+      case 'super_admin': return 'bg-indigo-500/10 text-indigo-700 border-indigo-300';
       case 'hospital_admin': return 'bg-purple-500/10 text-purple-700 border-purple-300';
-      case 'billing_executive': return 'bg-amber-500/10 text-amber-700 border-amber-300';
       case 'receptionist': return 'bg-blue-500/10 text-blue-700 border-blue-300';
+      case 'doctor': return 'bg-emerald-500/10 text-emerald-700 border-emerald-300';
       case 'nurse': return 'bg-rose-500/10 text-rose-700 border-rose-300';
+      case 'billing_executive': return 'bg-amber-500/10 text-amber-700 border-amber-300';
+      case 'pharmacist': return 'bg-teal-500/10 text-teal-700 border-teal-300';
+      case 'patient': return 'bg-cyan-500/10 text-cyan-700 border-cyan-300';
       default: return 'bg-slate-100 text-slate-700 border-slate-200';
     }
   };
@@ -54,34 +68,48 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="h-16 bg-white/90 backdrop-blur-md border-b border-slate-200 px-6 flex items-center justify-between sticky top-0 z-30 shadow-sm no-print">
-        {/* Brand & Hospital Context */}
-        <div className="flex items-center space-x-4">
+      <header className="h-16 bg-white/90 backdrop-blur-md border-b border-slate-200 px-4 sm:px-6 lg:px-8 pr-6 sm:pr-10 lg:pr-16 flex items-center justify-between sticky top-0 z-30 shadow-sm no-print">
+        {/* Brand & Context */}
+        <div className="flex items-center space-x-3 sm:space-x-4">
+          {setMobileOpen && (
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="md:hidden p-2 text-slate-500 hover:text-slate-800 rounded-xl hover:bg-slate-100 transition"
+              title="Toggle Menu"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+          )}
+
           <div className="flex items-center space-x-2.5">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-600 via-sky-600 to-indigo-700 flex items-center justify-center text-white shadow-md shadow-brand-500/25">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-600 via-sky-600 to-indigo-700 flex items-center justify-center text-white shadow-md shadow-brand-500/25 shrink-0">
               <Activity className="w-5 h-5 animate-pulse" />
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <span className="font-extrabold text-lg text-slate-900 tracking-tight">LAZFORT</span>
+                <span className="font-extrabold text-base sm:text-lg text-slate-900 tracking-tight">LAZFORT</span>
                 <span className="text-[10px] uppercase tracking-wider font-extrabold bg-brand-50 text-brand-700 px-2 py-0.5 rounded border border-brand-200">
-                  Hospital ERP
+                  {isSuperAdmin ? 'SaaS Control' : 'Hospital ERP'}
                 </span>
                 <span className="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full font-bold hidden sm:inline-flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
-                  Multi-Tenant Scoped
+                  {isSuperAdmin ? 'Global Root Mesh' : 'Multi-Tenant Scoped'}
                 </span>
               </div>
               <p className="text-xs text-slate-500 flex items-center">
-                <Building2 className="w-3.5 h-3.5 mr-1 text-slate-400" />
-                {tenant?.name || 'Lazfort Memorial Hospital'} &bull; <span className="ml-1 text-slate-600 font-medium">Indiranagar Campus</span>
+                <Building2 className="w-3.5 h-3.5 mr-1 text-slate-400 shrink-0" />
+                <span className="truncate max-w-[200px] sm:max-w-none">
+                  {isSuperAdmin
+                    ? 'Global Cloud Platform Operations &bull; 24 Hospital Clusters'
+                    : `${tenant?.name || 'Lazfort Memorial Hospital'} • Indiranagar Campus`}
+                </span>
               </p>
             </div>
           </div>
         </div>
 
         {/* Right Controls: Role Switcher & Doctor Profile Pill */}
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-3 sm:space-x-4 mr-4 sm:mr-8 lg:mr-14">
           {/* Quick Persona Switcher for pair testing */}
           <div className="relative">
             <button
@@ -127,7 +155,7 @@ export default function Navbar() {
           </div>
 
           {/* Profile Icon Button (Opens Doctor Profile Account Modal) */}
-          <div className="pl-2 border-l border-slate-200 flex items-center space-x-2">
+          <div className="pl-2.5 sm:pl-3 border-l border-slate-200 flex items-center space-x-2 mr-2 sm:mr-4">
             <button
               onClick={() => setShowProfileModal(true)}
               className="relative group focus:outline-none"
@@ -141,15 +169,6 @@ export default function Navbar() {
               </div>
               {/* Online Status Dot */}
               <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full" />
-            </button>
-
-            {/* Logout button */}
-            <button
-              onClick={logout}
-              className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition"
-              title="Sign Out"
-            >
-              <LogOut className="w-4 h-4" />
             </button>
           </div>
         </div>

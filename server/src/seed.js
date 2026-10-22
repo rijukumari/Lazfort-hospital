@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
+import { fileURLToPath } from 'node:url';
 import { connectDB } from './config/db.js';
 import { Tenant } from './models/Tenant.js';
 import { User } from './models/User.js';
@@ -26,7 +27,7 @@ import {
   initialAuditLogs
 } from './data/seedData.js';
 
-dotenv.config();
+dotenv.config({ path: fileURLToPath(new URL('../.env', import.meta.url)) });
 
 const runSeed = async () => {
   console.log('[Seed] Connecting to MongoDB...');

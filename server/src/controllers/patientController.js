@@ -2,10 +2,19 @@ import { inMemoryStore, isMongoDBActive } from '../services/storageService.js';
 import { Patient } from '../models/Patient.js';
 import { Appointment } from '../models/Appointment.js';
 import { Encounter } from '../models/Encounter.js';
+import { Prescription } from '../models/Prescription.js';
 import { Invoice } from '../models/Invoice.js';
 import { logAuditEvent } from '../middleware/audit.js';
 
 export const getAllPatients = async (req, res) => {
+  // Patients cannot search or list hospital-wide patient records
+  if (req.user?.role === 'patient') {
+    return res.status(403).json({
+      success: false,
+      message: 'Forbidden. Patients cannot view full patient directories.'
+    });
+  }
+
   try {
     const { query } = req.query;
     let patients = [];
@@ -42,10 +51,23 @@ export const getAllPatients = async (req, res) => {
 
 export const getPatientByUhid = async (req, res) => {
   const { uhid } = req.params;
+
+  // Enforce patient privacy: patient cannot query another patient's UHID
+  if (req.user?.role === 'patient') {
+    const userUhid = req.user.licenseNumber?.replace('UHID-', '') || (req.user.fullName?.match(/LZF-\d{4}-\d{4}/)?.[0]) || 'LZF-2026-0001';
+    if (uhid !== userUhid) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. You can only view your own authorized health records.'
+      });
+    }
+  }
+
   try {
     let patient = null;
     let appointments = [];
     let encounters = [];
+    let prescriptions = [];
     let invoices = [];
 
     if (isMongoDBActive()) {
@@ -53,6 +75,7 @@ export const getPatientByUhid = async (req, res) => {
       if (patient) {
         appointments = await Appointment.find({ tenantId: req.tenantId, patientId: uhid }).sort({ appointmentDate: -1 }).lean();
         encounters = await Encounter.find({ tenantId: req.tenantId, patientId: uhid }).sort({ encounterDate: -1 }).lean();
+        prescriptions = await Prescription.find({ tenantId: req.tenantId, patientId: uhid }).sort({ createdAt: -1 }).lean();
         invoices = await Invoice.find({ tenantId: req.tenantId, patientId: uhid }).sort({ date: -1 }).lean();
       }
     } else {
@@ -60,6 +83,7 @@ export const getPatientByUhid = async (req, res) => {
       if (patient) {
         appointments = inMemoryStore.appointments.filter(a => a.tenantId === req.tenantId && a.patientId === uhid);
         encounters = inMemoryStore.encounters.filter(e => e.tenantId === req.tenantId && e.patientId === uhid);
+        prescriptions = (inMemoryStore.prescriptions || []).filter(p => p.tenantId === req.tenantId && p.patientId === uhid);
         invoices = inMemoryStore.invoices.filter(i => i.tenantId === req.tenantId && i.patientId === uhid);
       }
     }
@@ -74,6 +98,7 @@ export const getPatientByUhid = async (req, res) => {
       history: {
         appointments,
         encounters,
+        prescriptions,
         invoices
       }
     });
@@ -226,7 +251,17 @@ export const registerPatient = async (req, res) => {
 
 export const updatePatient = async (req, res) => {
   const { uhid } = req.params;
-  const updates = req.body;
+  let updates = req.body;
+
+  // If patient role, restrict to permitted contact and personal details
+  if (req.user?.role === 'patient') {
+    const { phone, email, address, emergencyContact } = req.body;
+    updates = {};
+    if (phone) updates.phone = phone.trim();
+    if (email !== undefined) updates.email = email.trim();
+    if (address) updates.address = address;
+    if (emergencyContact) updates.emergencyContact = emergencyContact;
+  }
 
   try {
     let updatedPatient = null;

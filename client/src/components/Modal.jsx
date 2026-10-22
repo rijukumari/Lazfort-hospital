@@ -1,52 +1,50 @@
 import React, { useEffect } from 'react';
-import { X } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { ArrowLeft } from 'lucide-react';
 
-export default function Modal({ isOpen, onClose, title, children, maxWidth = 'max-w-2xl' }) {
+export default function Modal({ isOpen, onClose, title, children }) {
   useEffect(() => {
     const handleEsc = (e) => {
       if (e.key === 'Escape') onClose();
     };
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
       window.addEventListener('keydown', handleEsc);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
     return () => {
-      document.body.style.overflow = 'auto';
       window.removeEventListener('keydown', handleEsc);
     };
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
-      {/* Backdrop */}
-      <div 
-        className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity"
-        onClick={onClose}
-      />
+  return createPortal(
+    <div className="fixed top-16 bottom-0 right-0 left-0 md:left-[var(--sidebar-width,18rem)] z-20 bg-slate-50 overflow-y-auto animate-in fade-in duration-150">
+      <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full space-y-6">
+        {/* Top Header Card with ONLY the Back Icon and Title */}
+        <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-sm flex items-center gap-4">
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 rounded-xl transition shadow-sm border border-slate-200/80 group shrink-0"
+            title="Back"
+          >
+            <ArrowLeft className="w-5 h-5 text-slate-700 group-hover:-translate-x-0.5 transition-transform" />
+          </button>
 
-      <div className="flex min-h-full items-center justify-center p-4">
-        <div 
-          className={`relative w-full ${maxWidth} bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all animate-in fade-in zoom-in-95 duration-150`}
-        >
-          {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/70">
-            <h3 className="text-base font-bold text-slate-800">{title}</h3>
-            <button
-              onClick={onClose}
-              className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-200/50 transition"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
+          {title && (
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+              {title}
+            </h1>
+          )}
+        </div>
 
-          {/* Content Body */}
-          <div className="p-6 max-h-[80vh] overflow-y-auto">
-            {children}
-          </div>
+        {/* Full Page Content Card */}
+        <div className="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm">
+          {children}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
