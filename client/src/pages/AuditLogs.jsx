@@ -86,8 +86,8 @@ export default function AuditLogs() {
 
       {/* Audit Log Table */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-xs text-left">
+        <div className="overflow-x-auto custom-scrollbar">
+          <table className="w-full text-xs text-left min-w-[700px]">
             <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider">
               <tr>
                 <th className="py-3 px-4">Timestamp</th>

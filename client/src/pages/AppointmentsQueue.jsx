@@ -133,7 +133,7 @@ export default function AppointmentsQueue({ onStartConsultation }) {
   const [queueData, setQueueData] = useState(DEFAULT_QUEUE_DATA);
   const [doctors, setDoctors] = useState(DEFAULT_DOCTORS);
   const [departments, setDepartments] = useState(DEFAULT_DEPARTMENTS);
-  const [selectedDoctorId, setSelectedDoctorId] = useState('');
+  const [selectedDoctorId, setSelectedDoctorId] = useState(() => (user?.role === 'doctor' ? (user.userId || '') : ''));
   const [loading, setLoading] = useState(false);
   const [isBookModalOpen, setIsBookModalOpen] = useState(false);
 
@@ -142,7 +142,7 @@ export default function AppointmentsQueue({ onStartConsultation }) {
   const [patientSearch, setPatientSearch] = useState('');
   const [bookForm, setBookForm] = useState({
     patientId: '',
-    doctorId: '',
+    doctorId: user?.role === 'doctor' ? (user.userId || '') : '',
     departmentId: '',
     appointmentDate: new Date().toISOString().split('T')[0],
     timeSlot: '10:00 AM',
@@ -171,9 +171,6 @@ export default function AppointmentsQueue({ onStartConsultation }) {
         const docs = staffRes.staff.filter(s => s.role === 'doctor');
         if (docs.length > 0) {
           setDoctors(docs);
-          if (user?.role === 'doctor' && !selectedDoctorId) {
-            setSelectedDoctorId(user.userId);
-          }
         }
       }
     } catch (err) {
@@ -200,7 +197,7 @@ export default function AppointmentsQueue({ onStartConsultation }) {
     return () => clearInterval(interval);
   }, [selectedDoctorId]);
 
-  // Load patients for booking dropdown & refresh data when modal opens
+  // Load patients for booking dropdown when modal opens (served from cache if already loaded)
   useEffect(() => {
     if (isBookModalOpen) {
       api.get('/patients')
@@ -212,8 +209,6 @@ export default function AppointmentsQueue({ onStartConsultation }) {
         .catch(err => {
           console.warn('Could not load dynamic patients, using seed patients', err);
         });
-
-      fetchStaffAndDepts();
     }
   }, [isBookModalOpen]);
 
@@ -342,77 +337,109 @@ export default function AppointmentsQueue({ onStartConsultation }) {
 
   return (
     <div className="space-y-6">
-      {/* Header and Controls */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-        <div>
-          <h2 className="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
-            <CalendarClock className="w-5 h-5 text-brand-600" />
-            <span>OPD Queue & Outpatient Appointments Board</span>
-          </h2>
-          <p className="text-xs text-slate-500">
-            Real-time outpatient tokens, arrivals, and doctor consultation progression
-          </p>
+      {/* 3D Outpatient Queue Command Banner matching Navy / Sky 3D Theme */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-950 via-[#0a1e36] to-[#082b47] border border-sky-500/25 p-5 sm:p-6 lg:p-7 text-white shadow-2xl">
+        <div className="absolute -right-10 -bottom-10 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        {/* Continuous ECG Neon Line */}
+        <div className="absolute inset-0 opacity-20 flex items-center pointer-events-none">
+          <svg className="w-full h-24" viewBox="0 0 1200 100" fill="none">
+            <path
+              className="animate-ecg stroke-sky-400"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M0,50 L200,50 L220,50 L230,20 L240,80 L250,5 L260,95 L270,50 L350,50 L500,50 L520,50 L530,20 L540,80 L550,5 L560,95 L570,50 L650,50 L800,50 L820,50 L830,20 L840,80 L850,5 L860,95 L870,50 L950,50 L1100,50 L1120,50 L1130,20 L1140,80 L1150,5 L1160,95 L1170,50 L1200,50"
+            />
+          </svg>
         </div>
 
-        <div className="flex items-center gap-3 w-full sm:w-auto">
-          {/* Doctor Filter */}
-          <div className="relative">
-            <select
-              value={selectedDoctorId}
-              onChange={(e) => setSelectedDoctorId(e.target.value)}
-              className="px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 font-medium text-slate-700"
-            >
-              <option value="">All Doctors (Hospital View)</option>
-              {doctors.map(d => (
-                <option key={d.userId} value={d.userId}>
-                  {d.fullName} ({d.department})
-                </option>
-              ))}
-            </select>
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5 sm:gap-6">
+          <div className="space-y-1.5 sm:space-y-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[10px] sm:text-[11px] uppercase font-extrabold tracking-widest bg-sky-500/20 text-sky-300 border border-sky-400/30 px-3 py-1 rounded-full">
+                OPD Clinical Queue Station
+              </span>
+              <span className="text-[11px] sm:text-xs text-slate-300 font-semibold flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> Live Token Progression
+              </span>
+            </div>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight text-white flex items-center gap-2.5">
+              <span>OPD Queue &amp; Outpatient Appointments Board</span>
+            </h1>
+            <p className="text-xs text-sky-200/80 max-w-xl leading-relaxed">
+              Real-time outpatient tokens, arrivals, automated queue calling, and doctor consultation progression.
+            </p>
           </div>
 
-          <button
-            onClick={() => setIsBookModalOpen(true)}
-            className="bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-md shadow-brand-500/20 transition flex items-center space-x-1.5 shrink-0"
-          >
-            <UserPlus className="w-4 h-4" />
-            <span>Book Appointment</span>
-          </button>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 w-full sm:w-auto sm:pr-2">
+            {/* Doctor Filter */}
+            <div className="relative w-full sm:w-auto">
+              <select
+                value={selectedDoctorId}
+                onChange={(e) => setSelectedDoctorId(e.target.value)}
+                className="w-full sm:w-auto px-3.5 py-2.5 text-xs bg-slate-900/80 border border-sky-400/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400 font-bold text-sky-100 min-h-[44px] shadow-inner"
+              >
+                <option value="" className="bg-slate-900 text-white">All Doctors (Hospital View)</option>
+                {doctors.map(d => (
+                  <option key={d.userId} value={d.userId} className="bg-slate-900 text-white">
+                    {d.fullName} ({d.department})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <button
+              onClick={() => setIsBookModalOpen(true)}
+              className="bg-white hover:bg-slate-100 text-slate-900 text-xs font-black px-4 sm:px-5 py-2.5 rounded-xl shadow-lg transition transform hover:scale-105 active:scale-95 flex items-center justify-center space-x-2 shrink-0 min-h-[44px] mr-2 sm:mr-4"
+            >
+              <UserPlus className="w-4 h-4 text-sky-600" />
+              <span>Book Appointment</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Queue Metrics Summary Chips */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center justify-between">
-          <div>
-            <span className="text-amber-700 font-semibold uppercase text-[10px] block">Waiting in Lobby</span>
-            <span className="text-lg font-bold text-amber-900 font-mono">{queueData?.summary?.waiting || 0}</span>
-          </div>
-          <Clock className="w-6 h-6 text-amber-500 opacity-60" />
+      {/* 4 Stat Cards Row Below Banner */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 sm:gap-4">
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-sm space-y-1 hover:shadow-md transition">
+          <span className="text-[11px] font-semibold text-slate-400 block">Waiting in Lobby</span>
+          <span className="text-2xl sm:text-3xl font-black text-amber-600 block tracking-tight font-mono">
+            {queueData?.summary?.waiting || 0}
+          </span>
+          <span className="text-[10px] text-amber-600 font-medium block">
+            Active arrivals in waiting room
+          </span>
         </div>
 
-        <div className="bg-sky-50 border border-sky-200 rounded-xl p-3 flex items-center justify-between">
-          <div>
-            <span className="text-sky-700 font-semibold uppercase text-[10px] block">In Consultation</span>
-            <span className="text-lg font-bold text-sky-900 font-mono">{queueData?.summary?.inConsultation || 0}</span>
-          </div>
-          <Stethoscope className="w-6 h-6 text-sky-500 opacity-60" />
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-sm space-y-1 hover:shadow-md transition">
+          <span className="text-[11px] font-semibold text-slate-400 block">In Doctor Consultation</span>
+          <span className="text-2xl sm:text-3xl font-black text-sky-600 block tracking-tight font-mono">
+            {queueData?.summary?.inConsultation || 0}
+          </span>
+          <span className="text-[10px] text-sky-600 font-medium block">
+            Active with clinician now
+          </span>
         </div>
 
-        <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-center justify-between">
-          <div>
-            <span className="text-emerald-700 font-semibold uppercase text-[10px] block">Completed Today</span>
-            <span className="text-lg font-bold text-emerald-900 font-mono">{queueData?.summary?.completed || 0}</span>
-          </div>
-          <CheckCircle2 className="w-6 h-6 text-emerald-500 opacity-60" />
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-sm space-y-1 hover:shadow-md transition">
+          <span className="text-[11px] font-semibold text-slate-400 block">Completed Today</span>
+          <span className="text-2xl sm:text-3xl font-black text-emerald-600 block tracking-tight font-mono">
+            {queueData?.summary?.completed || 0}
+          </span>
+          <span className="text-[10px] text-emerald-600 font-medium block">
+            100% Locked &bull; Consulted &amp; Rx Done
+          </span>
         </div>
 
-        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center justify-between">
-          <div>
-            <span className="text-slate-600 font-semibold uppercase text-[10px] block">Scheduled / Upcoming</span>
-            <span className="text-lg font-bold text-slate-900 font-mono">{queueData?.summary?.booked || 0}</span>
-          </div>
-          <Calendar className="w-6 h-6 text-slate-400 opacity-60" />
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-sm space-y-1 hover:shadow-md transition">
+          <span className="text-[11px] font-semibold text-slate-400 block">Scheduled / Upcoming</span>
+          <span className="text-2xl sm:text-3xl font-black text-slate-900 block tracking-tight font-mono">
+            {queueData?.summary?.booked || 0}
+          </span>
+          <span className="text-[10px] text-slate-500 font-medium block">
+            Confirmed for today's roster
+          </span>
         </div>
       </div>
 
@@ -671,18 +698,18 @@ export default function AppointmentsQueue({ onStartConsultation }) {
             />
           </div>
 
-          <div className="flex justify-end space-x-2 pt-4 border-t border-slate-100">
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-4 border-t border-slate-100">
             <button
               type="button"
               onClick={() => setIsBookModalOpen(false)}
-              className="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50"
+              className="px-4 py-2.5 border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition min-h-[44px] sm:min-h-0 flex items-center justify-center font-semibold"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submittingBooking}
-              className="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-5 py-2 rounded-xl shadow-md shadow-brand-500/20 disabled:opacity-50"
+              className="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-5 py-2.5 rounded-xl shadow-md shadow-brand-500/20 disabled:opacity-50 transition min-h-[44px] sm:min-h-0 flex items-center justify-center"
             >
               {submittingBooking ? 'Booking...' : 'Confirm & Generate Queue Token'}
             </button>

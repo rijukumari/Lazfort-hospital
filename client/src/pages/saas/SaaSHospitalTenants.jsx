@@ -7,7 +7,7 @@ import {
   Filter,
   Plus,
   Eye,
-  Edit2,
+  Pencil,
   Power,
   CheckCircle2,
   AlertTriangle,
@@ -185,7 +185,7 @@ export default function SaaSHospitalTenants() {
             setFormErrors({});
             setAddModalOpen(true);
           }}
-          className="bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-md shadow-sky-600/20 transition flex items-center gap-2 self-start md:self-auto"
+          className="w-full sm:w-auto bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-md shadow-sky-600/20 transition flex items-center justify-center gap-2 shrink-0 active:scale-95"
         >
           <Plus className="w-4 h-4" />
           <span>Add New Hospital</span>
@@ -193,10 +193,10 @@ export default function SaaSHospitalTenants() {
       </div>
 
       {/* Main Directory Card */}
-      <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden min-w-0 max-w-full">
         {/* Controls Bar */}
-        <div className="p-5 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-          <div className="relative min-w-[280px]">
+        <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="relative w-full sm:w-72">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
             <input
               type="text"
@@ -210,14 +210,14 @@ export default function SaaSHospitalTenants() {
             />
           </div>
 
-          <div className="flex flex-wrap items-center gap-2.5">
+          <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 w-full sm:w-auto">
             <select
               value={statusFilter}
               onChange={(e) => {
                 setStatusFilter(e.target.value);
                 setCurrentPage(1);
               }}
-              className="text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500"
+              className="w-full sm:w-auto text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500"
             >
               <option value="All">All Statuses</option>
               <option value="Active">Active Only</option>
@@ -230,9 +230,9 @@ export default function SaaSHospitalTenants() {
                 setPlanFilter(e.target.value);
                 setCurrentPage(1);
               }}
-              className="text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500"
+              className="w-full sm:w-auto text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500"
             >
-              <option value="All">All Subscription Plans</option>
+              <option value="All">All Plans</option>
               <option value="Basic">Basic Plan</option>
               <option value="Professional">Professional Plan</option>
               <option value="Enterprise">Enterprise Plan</option>
@@ -240,36 +240,38 @@ export default function SaaSHospitalTenants() {
           </div>
         </div>
 
-        {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50/75 text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-100">
+        {/* DESKTOP TABLE VIEW (Visible on md+ screens >= 768px) */}
+        <div className="hidden md:block overflow-x-auto custom-scrollbar">
+          <table className="w-full text-left text-xs table-auto border-collapse">
+            <thead className="sticky top-0 z-20 bg-slate-100/95 backdrop-blur-md text-slate-700 uppercase tracking-wider font-bold border-b border-slate-200 shadow-xs">
               <tr>
-                <th className="p-4">Hospital Name & Details</th>
-                <th className="p-4">Tenant ID</th>
-                <th className="p-4">Location</th>
-                <th className="p-4">Plan & Quota</th>
-                <th className="p-4">Users</th>
-                <th className="p-4">Status</th>
-                <th className="p-4">Registration</th>
-                <th className="p-4 text-right">Actions</th>
+                <th className="py-3.5 px-4 whitespace-nowrap sticky top-0 z-20 bg-slate-100/95">Hospital Name & Details</th>
+                <th className="py-3.5 px-3 whitespace-nowrap sticky top-0 z-20 bg-slate-100/95">Tenant ID</th>
+                <th className="py-3.5 px-3 whitespace-nowrap sticky top-0 z-20 bg-slate-100/95">Location</th>
+                <th className="py-3.5 px-3 whitespace-nowrap sticky top-0 z-20 bg-slate-100/95">Plan & Quota</th>
+                <th className="py-3.5 px-3 whitespace-nowrap sticky top-0 z-20 bg-slate-100/95">Users</th>
+                <th className="py-3.5 px-3 whitespace-nowrap text-center sticky top-0 z-20 bg-slate-100/95">Status</th>
+                <th className="py-3.5 px-3 whitespace-nowrap sticky top-0 z-20 bg-slate-100/95">Registration</th>
+                <th className="py-3.5 px-4 pr-6 whitespace-nowrap text-right sticky right-0 top-0 z-30 bg-slate-100/95 shadow-[-6px_0_8px_-3px_rgba(0,0,0,0.08)]">
+                  Actions
+                </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 text-slate-700">
+            <tbody className="divide-y divide-slate-100 text-slate-700 bg-white">
               {paginatedTenants.length > 0 ? (
                 paginatedTenants.map((t) => (
-                  <tr key={t.id} className="hover:bg-slate-50/80 transition">
-                    <td className="p-4">
+                  <tr key={t.id} className="hover:bg-slate-50/80 transition group">
+                    <td className="py-3.5 px-4">
                       <div className="font-bold text-slate-900">{t.name}</div>
                       <div className="text-[11px] text-slate-400 font-mono">Reg: {t.regNumber || 'N/A'}</div>
                       <div className="text-[10px] text-slate-500">{t.email} &bull; {t.phone}</div>
                     </td>
-                    <td className="p-4 font-mono font-bold text-sky-700">{t.id}</td>
-                    <td className="p-4">
+                    <td className="py-3.5 px-3 font-mono font-bold text-sky-700 whitespace-nowrap">{t.id}</td>
+                    <td className="py-3.5 px-3 whitespace-nowrap">
                       <div>{t.city}</div>
                       <div className="text-[10px] text-slate-400">{t.state}, {t.country}</div>
                     </td>
-                    <td className="p-4">
+                    <td className="py-3.5 px-3 whitespace-nowrap">
                       <span className={`px-2 py-0.5 rounded-full font-bold text-[10px] border ${
                         t.plan === 'Enterprise'
                           ? 'bg-purple-50 text-purple-700 border-purple-200'
@@ -283,10 +285,10 @@ export default function SaaSHospitalTenants() {
                         Max {t.branchLimit} branches &bull; {t.storageLimit || '250 GB'}
                       </div>
                     </td>
-                    <td className="p-4 font-mono font-semibold">
+                    <td className="py-3.5 px-3 font-mono font-semibold whitespace-nowrap">
                       {t.totalUsers} / {t.userLimit}
                     </td>
-                    <td className="p-4">
+                    <td className="py-3.5 px-3 whitespace-nowrap text-center">
                       <span className={`px-2.5 py-0.5 rounded-full font-bold text-[10px] border ${
                         t.status === 'Active'
                           ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
@@ -295,9 +297,9 @@ export default function SaaSHospitalTenants() {
                         {t.status}
                       </span>
                     </td>
-                    <td className="p-4 font-mono text-[11px] text-slate-500">{t.regDate}</td>
-                    <td className="p-4 text-right">
-                      <div className="flex items-center justify-end gap-1.5">
+                    <td className="py-3.5 px-3 font-mono text-[11px] text-slate-500 whitespace-nowrap">{t.regDate}</td>
+                    <td className="py-3.5 px-4 pr-6 text-right whitespace-nowrap sticky right-0 z-10 bg-white group-hover:bg-slate-50/90 transition shadow-[-6px_0_8px_-3px_rgba(0,0,0,0.08)]">
+                      <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => {
                             setSelectedTenant(t);
@@ -306,14 +308,14 @@ export default function SaaSHospitalTenants() {
                           className="p-1.5 text-slate-500 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition"
                           title="View Details"
                         >
-                          <Eye className="w-3.5 h-3.5" />
+                          <Eye className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleOpenEdit(t)}
                           className="p-1.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
                           title="Edit Hospital"
                         >
-                          <Edit2 className="w-3.5 h-3.5" />
+                          <Pencil className="w-4 h-4" />
                         </button>
                         {t.status === 'Active' ? (
                           <button
@@ -321,7 +323,7 @@ export default function SaaSHospitalTenants() {
                             className="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
                             title="Suspend Hospital"
                           >
-                            <Power className="w-3.5 h-3.5" />
+                            <Power className="w-4 h-4" />
                           </button>
                         ) : (
                           <button
@@ -329,7 +331,7 @@ export default function SaaSHospitalTenants() {
                             className="p-1.5 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition"
                             title="Activate Hospital"
                           >
-                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            <CheckCircle2 className="w-4 h-4" />
                           </button>
                         )}
                       </div>
@@ -347,8 +349,113 @@ export default function SaaSHospitalTenants() {
           </table>
         </div>
 
+        {/* MOBILE CARD VIEW (Strictly visible on mobile screens < 768px) */}
+        <div className="md:hidden divide-y divide-slate-100">
+          {paginatedTenants.length > 0 ? (
+            paginatedTenants.map((t) => (
+              <div key={t.id} className="p-4 space-y-3 bg-white hover:bg-slate-50/50 transition">
+                {/* Header: Name + Status */}
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <h3 className="font-bold text-slate-900 text-sm leading-snug">{t.name}</h3>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="font-mono text-[11px] font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded border border-sky-100 shrink-0">
+                        {t.id}
+                      </span>
+                      <span className="text-slate-400 text-xs">&bull;</span>
+                      <span className="text-xs text-slate-500 truncate">{t.city}, {t.state}</span>
+                    </div>
+                  </div>
+                  <span className={`px-2.5 py-0.5 rounded-full font-bold text-[10px] border shrink-0 ${
+                    t.status === 'Active'
+                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                      : 'bg-rose-50 text-rose-700 border-rose-200'
+                  }`}>
+                    {t.status}
+                  </span>
+                </div>
+
+                {/* Plan + Users Allocation */}
+                <div className="p-3 bg-slate-50/80 rounded-2xl border border-slate-100 space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className={`px-2 py-0.5 rounded-full font-bold text-[10px] border ${
+                      t.plan === 'Enterprise'
+                        ? 'bg-purple-50 text-purple-700 border-purple-200'
+                        : t.plan === 'Professional'
+                        ? 'bg-sky-50 text-sky-700 border-sky-200'
+                        : 'bg-slate-100 text-slate-700 border-slate-200'
+                    }`}>
+                      {t.plan} Plan
+                    </span>
+                    <span className="font-mono text-xs font-bold text-slate-800">
+                      {t.totalUsers} / {t.userLimit} Users
+                    </span>
+                  </div>
+
+                  <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-300 ${
+                        t.plan === 'Enterprise' ? 'bg-purple-600' : 'bg-sky-600'
+                      }`}
+                      style={{ width: `${Math.min(100, Math.round((t.totalUsers / (t.userLimit || 1)) * 100))}%` }}
+                    ></div>
+                  </div>
+                </div>
+
+                {/* Contact Email & Registration */}
+                <div className="flex items-center justify-between text-[11px] text-slate-400 pt-0.5">
+                  <span className="truncate max-w-[190px]">{t.email}</span>
+                  <span className="font-mono text-[10px]">{t.regDate}</span>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                  <button
+                    onClick={() => {
+                      setSelectedTenant(t);
+                      setViewModalOpen(true);
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-sky-50 hover:text-sky-700 transition active:scale-95 shadow-xs"
+                  >
+                    <Eye className="w-3.5 h-3.5" />
+                    <span>View</span>
+                  </button>
+                  <button
+                    onClick={() => handleOpenEdit(t)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition active:scale-95 shadow-xs"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                    <span>Edit</span>
+                  </button>
+                  {t.status === 'Active' ? (
+                    <button
+                      onClick={() => handleOpenConfirm(t, 'Suspend')}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-50 text-rose-700 hover:bg-rose-100 transition active:scale-95 shadow-xs"
+                    >
+                      <Power className="w-3.5 h-3.5" />
+                      <span>Suspend</span>
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleOpenConfirm(t, 'Activate')}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition active:scale-95 shadow-xs"
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>Activate</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="p-8 text-center text-slate-400 text-xs">
+              No hospital tenants found matching the selected filters.
+            </div>
+          )}
+        </div>
+
         {/* Pagination */}
-        <div className="p-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+        <div className="p-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
           <span>
             Showing {filteredTenants.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0} to{' '}
             {Math.min(currentPage * itemsPerPage, filteredTenants.length)} of {filteredTenants.length} tenants

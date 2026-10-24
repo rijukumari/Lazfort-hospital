@@ -19,7 +19,7 @@ export default function Modal({ isOpen, onClose, title, children }) {
   if (!isOpen) return null;
 
   return createPortal(
-    <div className="fixed top-16 bottom-0 right-0 left-0 md:left-[var(--sidebar-width,18rem)] z-20 bg-slate-50 overflow-y-auto animate-in fade-in duration-150">
+    <div className="fixed top-0 bottom-0 right-0 left-0 lg:left-[var(--sidebar-width,18rem)] z-50 bg-slate-50 overflow-y-auto animate-in fade-in duration-150">
       <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full space-y-6">
         {/* Top Header Card with ONLY the Back Icon and Title */}
         <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-sm flex items-center gap-4">

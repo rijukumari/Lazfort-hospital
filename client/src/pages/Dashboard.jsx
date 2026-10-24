@@ -19,7 +19,8 @@ import {
   Heart,
   Server,
   HeartPulse,
-  Pill
+  Pill,
+  Search
 } from 'lucide-react';
 
 export default function Dashboard({ setActiveTab }) {
@@ -48,12 +49,12 @@ export default function Dashboard({ setActiveTab }) {
 
   return (
     <div className="space-y-6">
-      {/* 3D Hero Command Banner with Animated Continuous Cardiac ECG Waveform */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-sky-950 to-indigo-950 border border-white/15 p-7 text-white shadow-2xl">
+      {/* 3D Hero Command Banner matching Image 2 */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-950 via-[#0a1e36] to-[#082b47] border border-sky-500/25 p-5 sm:p-6 lg:p-7 text-white shadow-2xl">
         <div className="absolute -right-10 -bottom-10 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
         {/* Continuous ECG Neon Line */}
-        <div className="absolute inset-0 opacity-20 flex items-center pointer-events-none">
+        <div className="absolute inset-0 opacity-25 flex items-center pointer-events-none">
           <svg className="w-full h-24" viewBox="0 0 1200 100" fill="none">
             <path
               className="animate-ecg stroke-sky-400"
@@ -65,157 +66,158 @@ export default function Dashboard({ setActiveTab }) {
           </svg>
         </div>
 
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="text-[11px] uppercase font-extrabold tracking-widest bg-sky-500/30 text-sky-300 border border-sky-400/30 px-3 py-1 rounded-full">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5 sm:gap-6">
+          <div className="space-y-1.5 sm:space-y-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[10px] sm:text-[11px] uppercase font-extrabold tracking-widest bg-sky-500/20 text-sky-300 border border-sky-400/30 px-3 py-1 rounded-full">
                 Live Operations Command Center
               </span>
-              <span className="text-xs text-slate-300 flex items-center gap-1.5">
+              <span className="text-[11px] sm:text-xs text-slate-300 flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> Real-time Sync
               </span>
             </div>
-            <h2 className="text-2xl md:text-3xl font-black tracking-tight text-white">
-              Welcome back, {user?.fullName}
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight text-white">
+              Welcome back, {user?.fullName || (user?.role === 'receptionist' ? 'Receptionist' : 'Staff')}
             </h2>
             <p className="text-xs text-sky-200/80 max-w-xl leading-relaxed">
-              {tenant?.name || 'Lazfort Memorial Hospital'} &bull; {user?.department || 'Outpatient Services'} &bull; 
-              NABH compliant digital records & real-time queue orchestration.
+              {tenant?.name || 'Lazfort Memorial Hospital & Research Centre'} &bull; {user?.role === 'receptionist' ? 'Front Desk & Reception' : (user?.department || 'Hospital Administration')} &bull; 
+              NABH compliant digital records &amp; real-time queue orchestration.
             </p>
           </div>
 
-          {/* 3D Action Triggers */}
-          <div className="flex flex-wrap items-center gap-3">
-            {(user?.role === 'receptionist' || user?.role === 'hospital_admin') && (
-              <button
-                onClick={() => setActiveTab('patients')}
-                className="bg-white text-slate-900 hover:bg-sky-50 font-extrabold text-xs px-5 py-3 rounded-2xl shadow-lg transition transform hover:scale-105 active:scale-95 flex items-center gap-2"
-              >
-                <PlusCircle className="w-4 h-4 text-sky-600" />
-                <span>Register Patient</span>
-              </button>
-            )}
+          {/* 3D Action Triggers - 2-tier stacked layout matching Image 2 */}
+          <div className="flex flex-col items-stretch sm:items-start gap-2.5 shrink-0">
+            <div className="flex flex-wrap items-center gap-2.5">
+              {(user?.role === 'receptionist' || user?.role === 'hospital_admin') && (
+                <button
+                  onClick={() => setActiveTab('patients')}
+                  className="bg-white hover:bg-slate-100 text-slate-900 font-extrabold text-xs px-4 py-2.5 sm:px-5 sm:py-2.5 rounded-xl shadow-lg transition transform hover:scale-105 active:scale-95 flex items-center gap-2"
+                >
+                  <PlusCircle className="w-4 h-4 text-sky-600" />
+                  <span>Register Patient</span>
+                </button>
+              )}
 
-            {user?.role === 'doctor' && (
-              <button
-                onClick={() => setActiveTab('clinical')}
-                className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-extrabold text-xs px-5 py-3 rounded-2xl shadow-lg shadow-emerald-500/30 transition transform hover:scale-105 active:scale-95 flex items-center gap-2"
-              >
-                <Stethoscope className="w-4 h-4" />
-                <span>Launch OPD Consult</span>
-              </button>
-            )}
+              {(user?.role === 'billing_executive' || user?.role === 'hospital_admin') && (
+                <button
+                  onClick={() => setActiveTab('billing')}
+                  className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-extrabold text-xs px-4 py-2.5 sm:px-5 sm:py-2.5 rounded-xl shadow-lg shadow-orange-500/30 transition transform hover:scale-105 active:scale-95 flex items-center gap-2"
+                >
+                  <Receipt className="w-4 h-4" />
+                  <span>Cashier Desk</span>
+                </button>
+              )}
 
-            {(user?.role === 'billing_executive' || user?.role === 'hospital_admin') && (
-              <button
-                onClick={() => setActiveTab('billing')}
-                className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-extrabold text-xs px-5 py-3 rounded-2xl shadow-lg shadow-amber-500/30 transition transform hover:scale-105 active:scale-95 flex items-center gap-2"
-              >
-                <Receipt className="w-4 h-4" />
-                <span>Cashier Desk</span>
-              </button>
-            )}
+              {user?.role === 'doctor' && (
+                <button
+                  onClick={() => setActiveTab('clinical')}
+                  className="bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-extrabold text-xs px-5 py-2.5 rounded-xl shadow-lg shadow-sky-500/30 transition transform hover:scale-105 active:scale-95 flex items-center gap-2"
+                >
+                  <Stethoscope className="w-4 h-4" />
+                  <span>Launch OPD Consult</span>
+                </button>
+              )}
 
-            {user?.role === 'super_admin' && (
-              <button
-                onClick={() => setActiveTab('saas_admin')}
-                className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-extrabold text-xs px-5 py-3 rounded-2xl shadow-lg shadow-indigo-500/30 transition transform hover:scale-105 active:scale-95 flex items-center gap-2"
-              >
-                <Server className="w-4 h-4" />
-                <span>Tenant Operations</span>
-              </button>
-            )}
+              {user?.role === 'super_admin' && (
+                <button
+                  onClick={() => setActiveTab('saas_admin')}
+                  className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-extrabold text-xs px-5 py-2.5 rounded-xl shadow-lg shadow-indigo-500/30 transition transform hover:scale-105 active:scale-95 flex items-center gap-2"
+                >
+                  <Server className="w-4 h-4" />
+                  <span>Tenant Operations</span>
+                </button>
+              )}
 
-            {user?.role === 'nurse' && (
-              <button
-                onClick={() => setActiveTab('nurse_station')}
-                className="bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-extrabold text-xs px-5 py-3 rounded-2xl shadow-lg shadow-rose-500/30 transition transform hover:scale-105 active:scale-95 flex items-center gap-2"
-              >
-                <HeartPulse className="w-4 h-4" />
-                <span>Nurse Station</span>
-              </button>
-            )}
+              {user?.role === 'nurse' && (
+                <button
+                  onClick={() => setActiveTab('nurse_station')}
+                  className="bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-extrabold text-xs px-5 py-2.5 rounded-xl shadow-lg shadow-rose-500/30 transition transform hover:scale-105 active:scale-95 flex items-center gap-2"
+                >
+                  <HeartPulse className="w-4 h-4" />
+                  <span>Nurse Station</span>
+                </button>
+              )}
 
-            {user?.role === 'pharmacist' && (
-              <button
-                onClick={() => setActiveTab('pharmacy_lab')}
-                className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white font-extrabold text-xs px-5 py-3 rounded-2xl shadow-lg shadow-teal-500/30 transition transform hover:scale-105 active:scale-95 flex items-center gap-2"
-              >
-                <Pill className="w-4 h-4" />
-                <span>Pharmacy & Lab</span>
-              </button>
-            )}
-
-            {user?.role === 'patient' && (
-              <button
-                onClick={() => setActiveTab('patient_portal')}
-                className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-extrabold text-xs px-5 py-3 rounded-2xl shadow-lg shadow-cyan-500/30 transition transform hover:scale-105 active:scale-95 flex items-center gap-2"
-              >
-                <UserCheck className="w-4 h-4" />
-                <span>My Health Portal</span>
-              </button>
-            )}
+              {user?.role === 'pharmacist' && (
+                <button
+                  onClick={() => setActiveTab('pharmacy_lab')}
+                  className="bg-slate-800/80 hover:bg-slate-700/80 text-white border border-slate-600/50 font-extrabold text-xs px-5 py-2.5 rounded-xl shadow-lg shadow-black/20 transition transform hover:scale-105 active:scale-95 flex items-center gap-2 backdrop-blur-md"
+                >
+                  <Pill className="w-4 h-4 text-sky-300" />
+                  <span>Pharmacy &amp; Lab</span>
+                </button>
+              )}
+            </div>
 
             <button
               onClick={() => setActiveTab('appointments')}
-              className="bg-white/10 hover:bg-white/20 text-white border border-white/20 font-bold text-xs px-5 py-3 rounded-2xl transition transform hover:scale-105 active:scale-95 flex items-center gap-2 backdrop-blur-md"
+              className="bg-slate-800/80 hover:bg-slate-700/80 text-slate-200 hover:text-white border border-slate-600/50 font-bold text-xs px-4 py-2 rounded-xl transition transform hover:scale-105 active:scale-95 flex items-center gap-2 backdrop-blur-md shadow-lg shadow-black/20"
             >
-              <CalendarCheck className="w-4 h-4" />
+              <CalendarCheck className="w-4 h-4 text-sky-300" />
               <span>Live Queue Board</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* 4 Interactive 3D Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <StatCard
-          title="Today's Appointments"
-          value={metrics?.appointments?.totalToday ?? 18}
-          subtitle="Scheduled outpatient visits"
-          trend="↑ +12%"
-          icon={CalendarCheck}
-          color="brand"
-        />
-        <StatCard
-          title="Patients in Queue"
-          value={metrics?.appointments?.waiting ?? 4}
-          subtitle={`${metrics?.appointments?.inConsultation ?? 2} currently with doctor`}
-          icon={Clock}
-          color="amber"
-        />
-        <StatCard
-          title="Encounters Completed"
-          value={metrics?.appointments?.completed ?? 12}
-          subtitle="Consulted & Rx finalized"
-          trend="100% Locked"
-          icon={CheckCircle2}
-          color="emerald"
-        />
-        <StatCard
-          title="Total Registered UHIDs"
-          value={metrics?.patients?.totalRegistered ?? 1482}
-          subtitle={`${metrics?.doctors?.activeOnDuty ?? 3} active clinicians on duty`}
-          icon={Users}
-          color="purple"
-        />
+      {/* 4 Stat Cards Row Below Banner */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 sm:gap-4">
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-sm space-y-1 hover:shadow-md transition">
+          <span className="text-[11px] font-semibold text-slate-400 block">Today's Appointments</span>
+          <span className="text-2xl sm:text-3xl font-black text-slate-900 block tracking-tight font-mono">
+            {metrics?.appointments?.totalToday ?? 18}
+          </span>
+          <span className="text-[10px] text-emerald-600 font-medium block">
+            <span className="font-bold">↑ +12%</span> Scheduled outpatient visits
+          </span>
+        </div>
+
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-sm space-y-1 hover:shadow-md transition">
+          <span className="text-[11px] font-semibold text-slate-400 block">Patients in Queue</span>
+          <span className="text-2xl sm:text-3xl font-black text-slate-900 block tracking-tight font-mono">
+            {metrics?.appointments?.waiting ?? 4}
+          </span>
+          <span className="text-[10px] text-amber-600 font-medium block">
+            {metrics?.appointments?.inConsultation ?? 2} currently with doctor
+          </span>
+        </div>
+
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-sm space-y-1 hover:shadow-md transition">
+          <span className="text-[11px] font-semibold text-slate-400 block">Encounters Completed</span>
+          <span className="text-2xl sm:text-3xl font-black text-emerald-600 block tracking-tight font-mono">
+            {metrics?.appointments?.completed ?? 12}
+          </span>
+          <span className="text-[10px] text-emerald-600 font-medium block">
+            100% Locked &bull; Consulted &amp; Rx finalized
+          </span>
+        </div>
+
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-sm space-y-1 hover:shadow-md transition">
+          <span className="text-[11px] font-semibold text-slate-400 block">Total Registered UHIDs</span>
+          <span className="text-2xl sm:text-3xl font-black text-slate-900 block tracking-tight font-mono">
+            {metrics?.patients?.totalRegistered ?? 1482}
+          </span>
+          <span className="text-[10px] text-sky-600 font-medium block">
+            {metrics?.doctors?.activeOnDuty ?? 3} active clinicians on duty
+          </span>
+        </div>
       </div>
 
       {/* 3D Vitals Rings Holographic Card & Revenue Split */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Financial Highlights */}
-        <div className="lg:col-span-7 glass-card rounded-3xl p-6 border border-white/80 shadow-xl space-y-6">
-          <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+        <div className="lg:col-span-7 glass-card rounded-3xl p-4 sm:p-6 border border-white/80 shadow-xl space-y-5 sm:space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2">
             <div>
               <h3 className="text-sm font-black text-slate-900">Daily Revenue & Cashier Collections (FR-010)</h3>
               <p className="text-xs text-slate-500">Real-time billed services and payments received today</p>
             </div>
-            <span className="text-xs font-black text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+            <span className="text-xs font-black text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 self-start sm:self-auto">
               ₹ {tenant?.currencySymbol || '₹'} INR
             </span>
           </div>
 
-          <div className="grid grid-cols-3 gap-4 text-center">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-center">
             <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
               <span className="text-xs text-slate-500 font-semibold block">Total Billed</span>
               <span className="text-xl font-black text-slate-900 mt-1 block font-mono">

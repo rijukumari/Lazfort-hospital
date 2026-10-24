@@ -31,16 +31,21 @@ export default function ServiceTariffs() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
+  const fetchDepartments = async () => {
+    try {
+      const depRes = await api.get('/catalog/departments');
+      if (depRes.success) setDepartments(depRes.departments);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const fetchTariffs = async () => {
     try {
       setLoading(true);
       const url = `/catalog/services?${categoryFilter ? `category=${categoryFilter}&` : ''}${search ? `search=${encodeURIComponent(search)}` : ''}`;
-      const [srvRes, depRes] = await Promise.all([
-        api.get(url),
-        api.get('/catalog/departments')
-      ]);
+      const srvRes = await api.get(url);
       if (srvRes.success) setServices(srvRes.services);
-      if (depRes.success) setDepartments(depRes.departments);
     } catch (err) {
       console.error(err);
     } finally {
@@ -49,7 +54,12 @@ export default function ServiceTariffs() {
   };
 
   useEffect(() => {
-    fetchTariffs();
+    fetchDepartments();
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(fetchTariffs, 200);
+    return () => clearTimeout(timer);
   }, [categoryFilter, search]);
 
   const handleSubmit = async (e) => {
@@ -95,12 +105,12 @@ export default function ServiceTariffs() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3 w-full sm:w-auto">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
           {/* Category Filter */}
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 font-medium text-slate-700"
+            className="px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 font-medium text-slate-700 min-h-[44px] sm:min-h-0"
           >
             <option value="">All Categories</option>
             <option value="consultation">Consultation</option>
@@ -112,7 +122,7 @@ export default function ServiceTariffs() {
 
           <button
             onClick={() => setIsAddOpen(true)}
-            className="bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-md shadow-brand-500/20 transition flex items-center space-x-1.5 shrink-0"
+            className="bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-md shadow-brand-500/20 transition flex items-center justify-center space-x-1.5 shrink-0 min-h-[44px] sm:min-h-0"
           >
             <PlusCircle className="w-4 h-4" />
             <span>Add Billable Tariff</span>
@@ -122,9 +132,9 @@ export default function ServiceTariffs() {
 
       {/* Services Table */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-xs text-left">
-            <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider">
+        <div className="overflow-x-auto custom-scrollbar">
+          <table className="w-full text-xs text-left min-w-[700px]">
+            <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider whitespace-nowrap">
               <tr>
                 <th className="py-3 px-4">Service Code</th>
                 <th className="py-3 px-4">Service Description</th>
@@ -278,18 +288,18 @@ export default function ServiceTariffs() {
             />
           </div>
 
-          <div className="flex justify-end space-x-2 pt-4 border-t border-slate-100">
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-4 border-t border-slate-100">
             <button
               type="button"
               onClick={() => setIsAddOpen(false)}
-              className="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50"
+              className="px-4 py-2.5 border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 min-h-[44px] sm:min-h-0 flex items-center justify-center font-semibold"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-5 py-2 rounded-xl shadow-md shadow-brand-500/20 disabled:opacity-50"
+              className="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-5 py-2.5 rounded-xl shadow-md shadow-brand-500/20 disabled:opacity-50 min-h-[44px] sm:min-h-0 flex items-center justify-center"
             >
               {submitting ? 'Saving...' : 'Save Tariff'}
             </button>

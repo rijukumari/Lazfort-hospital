@@ -1,0 +1,9 @@
+export { default as BaseRoleLayout } from './BaseRoleLayout';
+export { default as SaaSSuperAdminLayout } from './SaaSSuperAdminLayout';
+export { default as HospitalAdminLayout } from './HospitalAdminLayout';
+export { default as ReceptionistLayout } from './ReceptionistLayout';
+export { default as DoctorLayout } from './DoctorLayout';
+export { default as NurseLayout } from './NurseLayout';
+export { default as BillingExecutiveLayout } from './BillingExecutiveLayout';
+export { default as PharmacistLayout } from './PharmacistLayout';
+export { default as PatientLayout } from './PatientLayout';

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useSaaS } from '../../context/SaaSContext';
-import Modal from '../../components/Modal';
 import {
   User,
   Shield,
@@ -22,7 +21,7 @@ import {
   Mail,
   Phone,
   MapPin,
-  Edit3,
+  Pencil,
   RefreshCw,
   FileText,
   Fingerprint,
@@ -36,14 +35,22 @@ import {
   Eye,
   EyeOff,
   Download,
-  Sliders,
   ChevronRight,
-  ExternalLink
+  ExternalLink,
+  ArrowLeft,
+  CheckCircle,
+  Radio,
+  SlidersHorizontal,
+  KeyRound,
+  Sparkles
 } from 'lucide-react';
 
 export default function SaaSSuperAdminProfile({ initialTab = 'overview', setActiveTab }) {
   const { user, updateUser } = useAuth();
   const { showToast, auditRecords } = useSaaS();
+
+  // Page level navigation (Zero modals, dedicated pages)
+  const [profileSubPage, setProfileSubPage] = useState('main'); // 'main' | 'edit' | 'enroll_key'
 
   // Active sub-tab
   const [activeSubTab, setActiveSubTab] = useState(initialTab === 'password' ? 'security' : 'overview');
@@ -51,8 +58,7 @@ export default function SaaSSuperAdminProfile({ initialTab = 'overview', setActi
   // Copy state
   const [copiedField, setCopiedField] = useState(null);
 
-  // Edit Profile Modal
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  // Edit Profile Form state
   const [editForm, setEditForm] = useState({
     fullName: user?.fullName || 'Vikramaditya Singhania',
     email: user?.email || 'superadmin@lazfort.com',
@@ -115,8 +121,18 @@ export default function SaaSSuperAdminProfile({ initialTab = 'overview', setActi
   // Security WebAuthn test state
   const [yubiTestStatus, setYubiTestStatus] = useState(null);
 
+  // Recovery Codes list
+  const [recoveryCodes] = useState([
+    'LZ-ROOT-9421-F90A',
+    'LZ-ROOT-3810-7B12',
+    'LZ-ROOT-1184-E49C',
+    'LZ-ROOT-7729-33D1',
+    'LZ-ROOT-8840-02A8',
+    'LZ-ROOT-5512-CC71'
+  ]);
+
   const handleCopy = (text, fieldName) => {
-    navigator.clipboard.writeText(text);
+    navigator.clipboard?.writeText(text);
     setCopiedField(fieldName);
     showToast(`Copied ${fieldName} to clipboard!`, 'info');
     setTimeout(() => setCopiedField(null), 2500);
@@ -128,7 +144,7 @@ export default function SaaSSuperAdminProfile({ initialTab = 'overview', setActi
       updateUser(editForm);
     }
     showToast('Super Admin profile updated successfully!', 'success');
-    setIsEditModalOpen(false);
+    setProfileSubPage('main');
   };
 
   const handlePasswordSubmit = (e) => {
@@ -141,12 +157,11 @@ export default function SaaSSuperAdminProfile({ initialTab = 'overview', setActi
       return;
     }
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      setPasswordErrorMsg('New password and confirmation do not match.');
+      setPasswordErrorMsg('New passwords do not match. Please re-enter.');
       return;
     }
 
-    // Success simulation
-    setPasswordSuccessMsg('Platform Master Password updated successfully! Next session will require FIDO2 re-handshake.');
+    setPasswordSuccessMsg('Platform master password updated successfully! Session re-authenticated with FIDO2 key.');
     showToast('Platform master password updated securely.', 'success');
     setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
   };
@@ -305,68 +320,308 @@ export default function SaaSSuperAdminProfile({ initialTab = 'overview', setActi
     }
   ];
 
+  // ================= DEDICATED NEW PAGE 1: EDIT PROFILE DOSSIER (NO MODAL) =================
+  if (profileSubPage === 'edit') {
+    return (
+      <div className="space-y-6 animate-fade-in max-w-full min-w-0">
+        {/* Back Navigation Bar */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setProfileSubPage('main')}
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition active:scale-95 shadow-xs"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back to Profile</span>
+            </button>
+            <div className="h-4 w-px bg-slate-200 hidden sm:block"></div>
+            <div className="text-xs text-slate-500 font-mono">
+              Identity Management &bull; <strong className="text-slate-900">Edit Operator Dossier</strong>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs bg-amber-50 text-amber-700 font-bold border border-amber-200 px-3 py-1 rounded-full flex items-center gap-1.5">
+              <ShieldAlert className="w-3.5 h-3.5 text-amber-600" />
+              <span>Identity Modifications Logged to WORM Trail</span>
+            </span>
+          </div>
+        </div>
+
+        {/* Edit Banner */}
+        <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl border border-slate-800">
+          <div className="flex items-center gap-2 text-xs text-sky-400 font-bold uppercase tracking-wider mb-2">
+            <Pencil className="w-4 h-4" />
+            <span>Root Identity Re-verification</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+            Edit Super Admin Profile Dossier
+          </h1>
+          <p className="text-slate-300 text-xs sm:text-sm mt-1 max-w-2xl leading-relaxed">
+            Update your operational identity parameters, emergency contact telephone lines, and primary datacenter facility bindings.
+          </p>
+        </div>
+
+        {/* Edit Form Card */}
+        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm max-w-4xl">
+          <form onSubmit={handleSaveProfile} className="space-y-6 text-xs">
+            {/* Avatar Row */}
+            <div className="flex items-center gap-5 pb-6 border-b border-slate-100">
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-tr from-sky-500 via-indigo-600 to-purple-600 p-1 shadow-md">
+                <div className="w-full h-full rounded-[14px] bg-slate-900 flex items-center justify-center text-white font-black text-2xl">
+                  {editForm.fullName?.charAt(0) || 'V'}
+                </div>
+              </div>
+              <div>
+                <h4 className="font-bold text-slate-900 text-sm">Operator Cryptographic Avatar</h4>
+                <p className="text-xs text-slate-500 mt-0.5">Auto-generated from your primary root key hash and identity token.</p>
+                <span className="inline-block mt-2 font-mono text-[10px] text-sky-700 bg-sky-50 border border-sky-200 px-2.5 py-0.5 rounded-full font-bold">
+                  Immutable Keyring Linked
+                </span>
+              </div>
+            </div>
+
+            {/* Inputs Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div>
+                <label className="block font-bold text-slate-700 mb-1.5">Legal Full Name</label>
+                <input
+                  type="text"
+                  required
+                  value={editForm.fullName}
+                  onChange={(e) => setEditForm({ ...editForm, fullName: e.target.value })}
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1.5">Administrative Email (Read-Only)</label>
+                <input
+                  type="email"
+                  disabled
+                  value={editForm.email}
+                  className="w-full p-3 bg-slate-100 border border-slate-200 rounded-xl text-xs font-mono font-bold text-slate-500 cursor-not-allowed"
+                />
+                <span className="text-[10px] text-slate-400 mt-1 block">Root email changes require offline HSM dual-custody approval.</span>
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1.5">Emergency Telecom Hotline</label>
+                <input
+                  type="text"
+                  required
+                  value={editForm.phone}
+                  onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1.5">Assigned Department</label>
+                <input
+                  type="text"
+                  required
+                  value={editForm.department}
+                  onChange={(e) => setEditForm({ ...editForm, department: e.target.value })}
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1.5">Primary Datacenter Location</label>
+                <input
+                  type="text"
+                  required
+                  value={editForm.location}
+                  onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1.5">Operational Standard Timezone</label>
+                <input
+                  type="text"
+                  required
+                  value={editForm.timezone}
+                  onChange={(e) => setEditForm({ ...editForm, timezone: e.target.value })}
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block font-bold text-slate-700 mb-1.5">Platform Mission Bio &amp; Architectural Scope</label>
+              <textarea
+                rows={3}
+                value={editForm.bio}
+                onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })}
+                className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition leading-relaxed"
+              />
+            </div>
+
+            {/* Bottom Actions */}
+            <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setProfileSubPage('main')}
+                className="px-5 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold text-xs transition"
+              >
+                Discard Changes
+              </button>
+              <button
+                type="submit"
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-sky-500/25 transition active:scale-95"
+              >
+                <Check className="w-4 h-4" />
+                <span>Save Profile Changes</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  // ================= DEDICATED NEW PAGE 2: ENROLL HARDWARE KEYRING (NO MODAL) =================
+  if (profileSubPage === 'enroll_key') {
+    return (
+      <div className="space-y-6 animate-fade-in max-w-full min-w-0">
+        <div className="flex items-center justify-between bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm">
+          <button
+            onClick={() => setProfileSubPage('main')}
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition active:scale-95 shadow-xs"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to Profile</span>
+          </button>
+          <span className="text-xs font-mono text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 font-bold">
+            WebAuthn Level 3 • FIDO2 Certified
+          </span>
+        </div>
+
+        <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl border border-slate-800">
+          <div className="flex items-center gap-2 text-xs text-emerald-400 font-bold uppercase tracking-wider mb-2">
+            <Fingerprint className="w-4 h-4" />
+            <span>FIDO2 / WebAuthn Hardware Pairing</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+            Register Secondary Hardware Security Key
+          </h1>
+          <p className="text-slate-300 text-xs sm:text-sm mt-1 max-w-2xl leading-relaxed">
+            Attach a physical YubiKey 5C, Google Titan, or Feitian hardware cryptographic authenticator for redundant break-glass access.
+          </p>
+        </div>
+
+        <div className="bg-white rounded-3xl p-8 border border-slate-200/80 shadow-sm max-w-2xl text-center space-y-6 mx-auto">
+          <div className="w-20 h-20 rounded-full bg-sky-50 text-sky-600 flex items-center justify-center mx-auto ring-8 ring-sky-50/50">
+            <Key className="w-10 h-10 animate-bounce" />
+          </div>
+          <div>
+            <h3 className="font-bold text-slate-900 text-base">Insert Your Hardware Security Key</h3>
+            <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto">
+              Insert your physical security key into any USB-C port or hold it against your NFC reader, then tap the gold contact sensor.
+            </p>
+          </div>
+
+          <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-left space-y-2 text-xs">
+            <div className="flex justify-between text-slate-600">
+              <span>Cryptographic Protocol:</span>
+              <strong className="font-mono text-slate-900">CTAP2 / WebAuthn 2.0</strong>
+            </div>
+            <div className="flex justify-between text-slate-600">
+              <span>Resident Credential:</span>
+              <strong className="font-mono text-emerald-600">Passkey WORM Locked</strong>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-center gap-3">
+            <button
+              onClick={() => setProfileSubPage('main')}
+              className="px-5 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold text-xs"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => {
+                showToast('Secondary Hardware YubiKey paired and verified successfully!', 'success');
+                setProfileSubPage('main');
+              }}
+              className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold text-xs shadow-lg shadow-emerald-500/25 transition active:scale-95"
+            >
+              Authorize &amp; Complete Pairing
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ================= DEFAULT VIEW: MAIN ENTERPRISE PROFILE COMMAND CENTER =================
   return (
-    <div className="w-full space-y-6 pb-12 animate-fadeIn">
-      {/* ================= 1. BREADCRUMBS & CONTEXT BAR ================= */}
+    <div className="w-full space-y-6 pb-12 animate-fade-in max-w-full min-w-0">
+      {/* 1. Breadcrumbs Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
         <div className="flex items-center gap-2">
           <span className="font-semibold text-slate-700">Platform Governance</span>
           <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-          <span className="text-slate-500">Identity & Access Control</span>
+          <span className="text-slate-500">Identity &amp; Access Control</span>
           <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
           <span className="font-bold text-sky-600 bg-sky-50 px-2.5 py-0.5 rounded-full border border-sky-100">
             Super Admin Profile
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            Root Session Validated &bull; FIDO2 Hardware Locked
+            <span>Root Session Validated &bull; FIDO2 Hardware Locked</span>
           </span>
-          <span className="text-[11px] font-mono text-slate-400">
+          <span className="text-[11px] font-mono text-slate-400 bg-white px-2.5 py-0.5 rounded-full border border-slate-200">
             Node: AS-SOUTH-1A
           </span>
         </div>
       </div>
 
-      {/* ================= 2. HERO COVER BANNER ================= */}
+      {/* 2. Sleek Modern Hero Cover Banner */}
       <div className="relative rounded-3xl overflow-hidden shadow-xl border border-slate-800 bg-slate-950 text-white">
-        {/* Ambient Glows & Background Grid */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-900/40 via-sky-950/20 to-transparent pointer-events-none"></div>
         <div className="absolute -top-24 -left-24 w-80 h-80 bg-sky-500/10 rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-        {/* Top Cover Visual Strip */}
-        <div className="h-32 sm:h-40 w-full bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border-b border-slate-800/80 px-6 sm:px-8 py-4 flex items-start justify-between relative">
+        {/* Top Header Strip */}
+        <div className="h-32 sm:h-36 w-full bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border-b border-slate-800/80 px-6 sm:px-8 py-4 flex items-start justify-between relative">
           <div className="flex items-center gap-2">
-            <span className="px-2.5 py-1 rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-400/30 font-mono text-[11px] font-bold tracking-wider uppercase">
-              Lazfort Cloud Platform v4.2 &bull; Multi-Tenant Core
+            <span className="px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-400/30 font-mono text-[11px] font-bold tracking-wider uppercase flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+              <span>Lazfort Cloud Platform v4.2 &bull; Multi-Tenant Core</span>
             </span>
           </div>
+
           <div className="flex items-center gap-2">
             <button
               onClick={handleExportDossier}
-              className="px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition shadow-sm"
+              className="px-3.5 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition shadow-sm active:scale-95"
               title="Export complete cryptographic profile dossier"
             >
               <Download className="w-3.5 h-3.5 text-sky-400" />
               <span>Export Dossier</span>
             </button>
+
             <button
-              onClick={() => setIsEditModalOpen(true)}
-              className="px-3.5 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold flex items-center gap-1.5 transition shadow-lg shadow-sky-600/30"
+              onClick={() => setProfileSubPage('edit')}
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 transition shadow-lg shadow-sky-500/25 active:scale-95"
             >
-              <Edit3 className="w-3.5 h-3.5" />
+              <Pencil className="w-3.5 h-3.5" />
               <span>Edit Profile</span>
             </button>
           </div>
         </div>
 
         {/* Profile Details Header Overlay */}
-        <div className="relative px-6 sm:px-8 pb-8 pt-0 -mt-14 sm:-mt-16 flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="relative px-6 sm:px-8 pb-7 pt-0 -mt-12 sm:-mt-14 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-end gap-5">
             {/* Avatar */}
-            <div className="relative group">
+            <div className="relative group shrink-0">
               <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-gradient-to-tr from-sky-500 via-indigo-600 to-purple-600 p-1 shadow-2xl ring-4 ring-slate-950">
                 <div className="w-full h-full rounded-[22px] bg-slate-900 flex items-center justify-center text-white font-black text-3xl sm:text-4xl shadow-inner">
                   {user?.fullName?.charAt(0) || 'V'}
@@ -385,7 +640,7 @@ export default function SaaSSuperAdminProfile({ initialTab = 'overview', setActi
                 </h1>
                 <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center gap-1">
                   <Shield className="w-3 h-3 text-purple-400" />
-                  SaaS Super Admin &bull; Global Root
+                  <span>SaaS Super Admin &bull; Global Root</span>
                 </span>
                 <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
                   Level 0 Clearance
@@ -393,29 +648,29 @@ export default function SaaSSuperAdminProfile({ initialTab = 'overview', setActi
               </div>
 
               <div className="flex flex-wrap items-center gap-y-1 gap-x-4 text-xs text-slate-300">
-                <span className="flex items-center gap-1 text-slate-300">
+                <span className="flex items-center gap-1.5 text-slate-300">
                   <Mail className="w-3.5 h-3.5 text-sky-400" />
-                  {user?.email || 'superadmin@lazfort.com'}
+                  <span>{user?.email || 'superadmin@lazfort.com'}</span>
                 </span>
-                <span className="flex items-center gap-1 text-slate-300">
+                <span className="flex items-center gap-1.5 text-slate-300">
                   <Building2 className="w-3.5 h-3.5 text-indigo-400" />
-                  {user?.department || 'Global Cloud Platform Operations'}
+                  <span>{user?.department || 'Global Cloud Platform Operations'}</span>
                 </span>
-                <span className="flex items-center gap-1 text-slate-300">
+                <span className="flex items-center gap-1.5 text-slate-300">
                   <MapPin className="w-3.5 h-3.5 text-rose-400" />
-                  {user?.location || 'Bengaluru Cloud IDC • Zone-A'}
+                  <span>{user?.location || 'Bengaluru Cloud IDC • Zone-A'}</span>
                 </span>
               </div>
             </div>
           </div>
 
           {/* Quick ID & 2FA Pill */}
-          <div className="flex flex-col sm:flex-row md:flex-col items-start md:items-end gap-2 bg-slate-900/80 backdrop-blur-md p-3.5 rounded-2xl border border-slate-800 text-xs">
+          <div className="flex flex-col sm:flex-row md:flex-col items-start md:items-end gap-2 bg-slate-900/90 backdrop-blur-md p-3.5 rounded-2xl border border-slate-800 text-xs shrink-0">
             <div className="flex items-center gap-2">
-              <span className="text-slate-400">Operator ID:</span>
+              <span className="text-slate-400 font-medium">Operator ID:</span>
               <button
                 onClick={() => handleCopy(user?.userId || 'USR-SAAS-001', 'Operator ID')}
-                className="font-mono font-bold text-sky-400 hover:text-sky-300 flex items-center gap-1 bg-slate-800 px-2 py-0.5 rounded border border-slate-700 transition"
+                className="font-mono font-bold text-sky-400 hover:text-sky-300 flex items-center gap-1 bg-slate-800 px-2 py-0.5 rounded-lg border border-slate-700 transition"
                 title="Click to copy ID"
               >
                 <span>{user?.userId || 'USR-SAAS-001'}</span>
@@ -427,17 +682,17 @@ export default function SaaSSuperAdminProfile({ initialTab = 'overview', setActi
               </button>
             </div>
             <div className="flex items-center gap-2 text-[11px]">
-              <span className="text-slate-400">Primary 2FA:</span>
+              <span className="text-slate-400 font-medium">Primary 2FA:</span>
               <span className="font-semibold text-emerald-400 flex items-center gap-1">
                 <Lock className="w-3 h-3" />
-                Hardware YubiKey Enforced
+                <span>Hardware YubiKey Enforced</span>
               </span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ================= 3. FOUR KPI METRIC TILES ================= */}
+      {/* 3. Four Strategic Posture & Metric Tiles */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Tile 1 */}
         <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md transition">
@@ -494,14 +749,14 @@ export default function SaaSSuperAdminProfile({ initialTab = 'overview', setActi
           </div>
           <div className="text-xl font-black text-slate-900">100% Locked</div>
           <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 text-[11px]">
-            <span className="text-slate-500">NABH & HIPAA</span>
+            <span className="text-slate-500">NABH &amp; HIPAA</span>
             <span className="font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded">Zero Exceptions</span>
           </div>
         </div>
       </div>
 
-      {/* ================= 4. TAB NAVIGATION STRIP ================= */}
-      <div className="bg-white rounded-2xl p-1.5 border border-slate-200/80 shadow-sm flex flex-wrap gap-1">
+      {/* 4. Tab Navigation Strip */}
+      <div className="bg-white rounded-2xl p-1.5 border border-slate-200/80 shadow-sm flex flex-wrap gap-1.5">
         {[
           { id: 'overview', label: 'Identity & Overview', icon: User },
           { id: 'security', label: 'Security & Master Credentials', icon: Lock },
@@ -515,7 +770,7 @@ export default function SaaSSuperAdminProfile({ initialTab = 'overview', setActi
             <button
               key={tab.id}
               onClick={() => setActiveSubTab(tab.id)}
-              className={`flex-1 min-w-[150px] py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition ${
+              className={`flex-1 min-w-[150px] py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition active:scale-95 ${
                 isActive
                   ? 'bg-slate-900 text-white shadow-md'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
@@ -528,25 +783,24 @@ export default function SaaSSuperAdminProfile({ initialTab = 'overview', setActi
         })}
       </div>
 
-      {/* ================= 5. TAB CONTENT PANELS ================= */}
+      {/* 5. Tab Panels */}
 
       {/* TAB 1: IDENTITY & OVERVIEW */}
       {activeSubTab === 'overview' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left 2 Cols: Main Dossier */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Personal & Operator Dossier */}
             <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-sm space-y-6">
               <div className="flex items-center justify-between pb-4 border-b border-slate-100">
                 <div>
-                  <h2 className="text-lg font-bold text-slate-900">Operator Dossier & Profile Details</h2>
+                  <h2 className="text-lg font-bold text-slate-900">Operator Dossier &amp; Profile Details</h2>
                   <p className="text-xs text-slate-500">Verified identity parameters for platform root operations.</p>
                 </div>
                 <button
-                  onClick={() => setIsEditModalOpen(true)}
-                  className="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold flex items-center gap-1.5 transition"
+                  onClick={() => setProfileSubPage('edit')}
+                  className="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold flex items-center gap-1.5 transition active:scale-95"
                 >
-                  <Edit3 className="w-3.5 h-3.5 text-slate-500" />
+                  <Pencil className="w-3.5 h-3.5 text-slate-500" />
                   <span>Update Details</span>
                 </button>
               </div>
@@ -588,7 +842,7 @@ export default function SaaSSuperAdminProfile({ initialTab = 'overview', setActi
                 <div className="p-4 bg-slate-50/80 rounded-2xl border border-slate-100 space-y-1">
                   <span className="text-slate-400 font-medium">Assigned Department</span>
                   <div className="font-bold text-slate-900 text-sm">{user?.department || 'Global Cloud Platform Operations'}</div>
-                  <span className="text-[11px] text-slate-500">Division: Cloud Infrastructure & Cyber Defense</span>
+                  <span className="text-[11px] text-slate-500">Division: Cloud Infrastructure &amp; Cyber Defense</span>
                 </div>
 
                 <div className="p-4 bg-slate-50/80 rounded-2xl border border-slate-100 space-y-1">
@@ -598,167 +852,60 @@ export default function SaaSSuperAdminProfile({ initialTab = 'overview', setActi
                 </div>
               </div>
 
-              {/* Bio & Administrative Scope Statement */}
-              <div className="p-4 bg-sky-50/60 rounded-2xl border border-sky-100 space-y-2 text-xs">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-sky-700" />
-                  <span className="font-bold text-sky-950">Administrative Mission & Scope Declaration</span>
-                </div>
-                <p className="text-sky-900/90 leading-relaxed">
+              {/* Bio Statement */}
+              <div className="p-4 bg-slate-50/80 rounded-2xl border border-slate-100 space-y-1.5 text-xs">
+                <span className="text-slate-400 font-medium">Mission &amp; Architectural Scope</span>
+                <p className="text-slate-700 leading-relaxed font-medium">
                   {user?.bio || 'Chief Infrastructure Architect & Root Platform Administrator for Lazfort Multi-Tenant Healthcare Cloud. Enforcing zero-trust security and NABH/HIPAA compliance across all tenant nodes.'}
                 </p>
-              </div>
-
-              {/* Cryptographic Key Fingerprint Strip */}
-              <div className="p-4 bg-slate-900 text-slate-300 rounded-2xl border border-slate-800 space-y-2 text-xs">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-200 flex items-center gap-1.5">
-                    <Key className="w-3.5 h-3.5 text-sky-400" />
-                    Public Hardware GPG Signing Key Fingerprint
-                  </span>
-                  <button
-                    onClick={() => handleCopy('E5F9 2A1B 94C3 87E0 DB31 4FA8 2B5E 7901 C683 E810', 'GPG Fingerprint')}
-                    className="text-xs text-sky-400 hover:text-sky-300 font-mono font-bold flex items-center gap-1"
-                  >
-                    <span>{copiedField === 'GPG Fingerprint' ? 'Copied' : 'Copy Key'}</span>
-                    <Copy className="w-3 h-3" />
-                  </button>
-                </div>
-                <div className="font-mono text-[11px] bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-sky-300 break-all select-all">
-                  E5F9 2A1B 94C3 87E0 DB31 4FA8 2B5E 7901 C683 E810
-                </div>
-                <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1">
-                  <span>Algorithm: Ed25519 (FIDO2 Hardware Bound)</span>
-                  <span>Expires: Never (Platform Master)</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Managed Infrastructure Overview */}
-            <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                <h3 className="text-base font-bold text-slate-900">Governed Multi-Tenant Architecture</h3>
-                <span className="text-xs text-slate-500">Live Health: 100% Operational</span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
-                  <span className="text-slate-400">Total Active Tenants</span>
-                  <div className="text-xl font-black text-slate-900">24 Hospitals</div>
-                  <span className="text-[10px] text-emerald-600 font-bold">&bull; 0 Degraded Clusters</span>
-                </div>
-                <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
-                  <span className="text-slate-400">Branch Nodes</span>
-                  <div className="text-xl font-black text-slate-900">64 Clinics</div>
-                  <span className="text-[10px] text-sky-600 font-bold">&bull; Real-time HL7/FHIR Sync</span>
-                </div>
-                <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
-                  <span className="text-slate-400">Storage & Audit Vault</span>
-                  <div className="text-xl font-black text-slate-900">1.84 TB</div>
-                  <span className="text-[10px] text-purple-600 font-bold">&bull; AES-256 GCM Immutable</span>
-                </div>
               </div>
             </div>
           </div>
 
-          {/* Right 1 Col: Quick Actions & Security Status */}
+          {/* Right Col: Jurisdiction & Emergency Protocols */}
           <div className="space-y-6">
-            {/* Root Credential Quick Summary */}
-            <div className="bg-gradient-to-br from-slate-900 to-indigo-950 text-white rounded-3xl p-6 border border-slate-800 shadow-xl space-y-5">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-sky-500/20 border border-sky-400/30 flex items-center justify-center text-sky-400">
-                  <ShieldCheck className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-sm text-white">Cryptographic Root Status</h3>
-                  <span className="text-[11px] text-sky-300 font-mono">ENFORCED & HEALTHY</span>
-                </div>
+            {/* Jurisdiction Card */}
+            <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm space-y-4 text-xs">
+              <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
+                <Globe className="w-4 h-4 text-sky-600" />
+                <h3 className="font-bold text-slate-900 text-sm">Infrastructure Jurisdiction</h3>
               </div>
 
-              <div className="space-y-3 text-xs pt-1">
-                <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-800/60 border border-slate-700/60">
-                  <span className="text-slate-400">Hardware 2FA:</span>
-                  <span className="text-emerald-400 font-bold flex items-center gap-1">
-                    <Check className="w-3.5 h-3.5" /> Enforced
-                  </span>
+              <div className="space-y-2.5">
+                <div className="flex justify-between py-1.5 border-b border-slate-50 text-slate-600">
+                  <span>Hospital Tenants:</span>
+                  <strong className="text-slate-900">24 Production Nodes</strong>
                 </div>
-                <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-800/60 border border-slate-700/60">
-                  <span className="text-slate-400">Subnet Lock:</span>
-                  <span className="text-sky-300 font-mono font-bold">103.22.18.0/24</span>
+                <div className="flex justify-between py-1.5 border-b border-slate-50 text-slate-600">
+                  <span>Cloud Providers:</span>
+                  <strong className="text-slate-900">AWS Mumbai &amp; Azure India</strong>
                 </div>
-                <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-800/60 border border-slate-700/60">
-                  <span className="text-slate-400">Master Password:</span>
-                  <span className="text-slate-300">Updated 14 days ago</span>
+                <div className="flex justify-between py-1.5 border-b border-slate-50 text-slate-600">
+                  <span>Cross-Tenant Isolation:</span>
+                  <strong className="text-emerald-600 font-bold">Hardware Enforced</strong>
                 </div>
-                <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-800/60 border border-slate-700/60">
-                  <span className="text-slate-400">Audit Compliance:</span>
-                  <span className="text-purple-300 font-bold">NABH Digital Trail</span>
+                <div className="flex justify-between py-1.5 text-slate-600">
+                  <span>Compliance Framework:</span>
+                  <strong className="text-indigo-600 font-bold">NABH Digital Ready</strong>
                 </div>
-              </div>
-
-              <div className="pt-2">
-                <button
-                  onClick={handleTestYubiKey}
-                  disabled={yubiTestStatus === 'testing'}
-                  className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs flex items-center justify-center gap-2 transition shadow-lg shadow-indigo-600/30 disabled:opacity-50"
-                >
-                  <RefreshCw className={`w-3.5 h-3.5 ${yubiTestStatus === 'testing' ? 'animate-spin' : ''}`} />
-                  <span>
-                    {yubiTestStatus === 'testing'
-                      ? 'Performing FIDO2 Handshake...'
-                      : yubiTestStatus === 'verified'
-                      ? 'Hardware Verified!'
-                      : 'Test YubiKey Handshake'}
-                  </span>
-                </button>
               </div>
             </div>
 
-            {/* Quick Governance Links */}
-            <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm space-y-4 text-xs">
-              <h3 className="font-bold text-slate-900 text-sm">Governance Fast Travel</h3>
-              <div className="space-y-2">
-                <button
-                  onClick={() => setActiveSubTab('security')}
-                  className="w-full p-3 rounded-2xl bg-slate-50 hover:bg-sky-50 border border-slate-200/80 text-left flex items-center justify-between transition group"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <Lock className="w-4 h-4 text-slate-500 group-hover:text-sky-600" />
-                    <div>
-                      <div className="font-bold text-slate-900">Change Master Password</div>
-                      <div className="text-[11px] text-slate-500">Update root login password</div>
-                    </div>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-sky-600" />
-                </button>
-
-                <button
-                  onClick={() => setActiveTab && setActiveTab('saas_audit')}
-                  className="w-full p-3 rounded-2xl bg-slate-50 hover:bg-sky-50 border border-slate-200/80 text-left flex items-center justify-between transition group"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <FileText className="w-4 h-4 text-slate-500 group-hover:text-sky-600" />
-                    <div>
-                      <div className="font-bold text-slate-900">Security Audit Logs</div>
-                      <div className="text-[11px] text-slate-500">View live immutable system trail</div>
-                    </div>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-sky-600" />
-                </button>
-
-                <button
-                  onClick={() => setActiveTab && setActiveTab('saas_tenants')}
-                  className="w-full p-3 rounded-2xl bg-slate-50 hover:bg-sky-50 border border-slate-200/80 text-left flex items-center justify-between transition group"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <Building2 className="w-4 h-4 text-slate-500 group-hover:text-sky-600" />
-                    <div>
-                      <div className="font-bold text-slate-900">Manage Hospital Tenants</div>
-                      <div className="text-[11px] text-slate-500">24 active multi-tenant instances</div>
-                    </div>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-sky-600" />
-                </button>
+            {/* Emergency Protocols */}
+            <div className="bg-gradient-to-br from-slate-900 to-indigo-950 rounded-3xl p-6 text-white shadow-xl border border-slate-800 space-y-3 text-xs">
+              <div className="flex items-center justify-between text-amber-400 font-bold uppercase tracking-wider text-[11px]">
+                <span className="flex items-center gap-1.5">
+                  <ShieldAlert className="w-4 h-4" />
+                  <span>Break-Glass Protocol</span>
+                </span>
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+              </div>
+              <p className="text-slate-300 text-xs leading-relaxed">
+                Emergency break-glass procedures require hardware key activation and automatically initiate an immutable WORM audit session broadcast to all hospital compliance officers.
+              </p>
+              <div className="pt-2 border-t border-white/10 flex justify-between items-center text-[11px] text-slate-400">
+                <span>Dual-Custody Approvals:</span>
+                <span className="text-emerald-400 font-bold">2/2 Quorum Ready</span>
               </div>
             </div>
           </div>
@@ -768,50 +915,114 @@ export default function SaaSSuperAdminProfile({ initialTab = 'overview', setActi
       {/* TAB 2: SECURITY & MASTER CREDENTIALS */}
       {activeSubTab === 'security' && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left Col: Master Password Management */}
-          <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-sm space-y-6">
-            <div>
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center font-bold">
-                  <Lock className="w-4 h-4" />
-                </div>
-                <h2 className="text-lg font-bold text-slate-900">Change Super Admin Password</h2>
+          {/* Left: Hardware Security Keyring */}
+          <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-sm space-y-5">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div>
+                <h3 className="font-bold text-slate-900 text-sm">Hardware Security Keyring (FIDO2)</h3>
+                <p className="text-xs text-slate-500">Cryptographic tokens bound to physical authenticator hardware.</p>
               </div>
-              <p className="text-xs text-slate-500 mt-1">
-                Update the master administrator credentials. Strong password required (minimum 8 characters with symbol & number).
-              </p>
+              <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl font-bold text-xs">
+                MFA Enforced
+              </span>
             </div>
 
-            {passwordSuccessMsg && (
-              <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl text-xs flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>{passwordSuccessMsg}</span>
+            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-3 text-xs">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Key className="w-4 h-4 text-emerald-600" />
+                  <span className="font-bold text-slate-900">YubiKey 5C FIPS (Primary Key)</span>
+                </div>
+                <span className="font-mono text-[11px] text-slate-500">NFC &bull; USB-C</span>
               </div>
-            )}
+              <div className="text-[11px] text-slate-500">
+                Serial Number: <span className="font-mono font-bold text-slate-800">24891048-A9</span> &bull; Enrolled on 15-Jan-2026
+              </div>
+
+              <div className="pt-2 flex items-center justify-between">
+                <button
+                  disabled={yubiTestStatus === 'testing'}
+                  onClick={handleTestYubiKey}
+                  className="px-3 py-1.5 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl font-bold text-xs text-slate-700 transition flex items-center gap-1.5 active:scale-95 disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 text-sky-600 ${yubiTestStatus === 'testing' ? 'animate-spin' : ''}`} />
+                  <span>{yubiTestStatus === 'testing' ? 'Validating Handshake...' : 'Test Keyring Handshake'}</span>
+                </button>
+
+                <button
+                  onClick={() => setProfileSubPage('enroll_key')}
+                  className="text-xs text-sky-600 hover:text-sky-700 font-bold hover:underline"
+                >
+                  Enroll Redundant Key &rarr;
+                </button>
+              </div>
+            </div>
+
+            {/* Emergency Recovery Codes */}
+            <div className="p-4 bg-amber-50/70 rounded-2xl border border-amber-200/80 space-y-3 text-xs">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-amber-900 font-bold">
+                  <Lock className="w-4 h-4 text-amber-600" />
+                  <span>Cryptographic Recovery Codes</span>
+                </div>
+                <span className="font-mono text-[10px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-bold">
+                  6 Unused Codes
+                </span>
+              </div>
+              <p className="text-[11px] text-amber-800/80">
+                One-time break-glass tokens for emergency access if physical YubiKey hardware is lost.
+              </p>
+              <div className="grid grid-cols-2 gap-2 font-mono text-[11px] text-slate-800">
+                {recoveryCodes.map((code, idx) => (
+                  <div key={idx} className="bg-white p-2 rounded-xl border border-amber-200 flex justify-between items-center">
+                    <span>{code}</span>
+                    <button
+                      onClick={() => handleCopy(code, 'Recovery Code')}
+                      className="text-slate-400 hover:text-sky-600"
+                    >
+                      <Copy className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Right: Master Password Rotation */}
+          <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-sm space-y-5">
+            <div className="pb-3 border-b border-slate-100">
+              <h3 className="font-bold text-slate-900 text-sm">Master Password Rotation</h3>
+              <p className="text-xs text-slate-500">Requires minimum 14 characters, symbol, and 90-day cycle.</p>
+            </div>
 
             {passwordErrorMsg && (
-              <div className="p-4 bg-rose-50 border border-rose-200 text-rose-800 rounded-2xl text-xs flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+              <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl text-xs flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 shrink-0" />
                 <span>{passwordErrorMsg}</span>
+              </div>
+            )}
+            {passwordSuccessMsg && (
+              <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-2xl text-xs flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 shrink-0" />
+                <span>{passwordSuccessMsg}</span>
               </div>
             )}
 
             <form onSubmit={handlePasswordSubmit} className="space-y-4 text-xs">
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">Current Password</label>
+                <label className="block font-bold text-slate-700 mb-1">Current Master Password</label>
                 <div className="relative">
                   <input
                     type={showCurrentPass ? 'text' : 'password'}
                     required
                     value={passwordForm.currentPassword}
                     onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
-                    placeholder="Enter existing password"
-                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition"
+                    className="w-full p-2.5 pr-9 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20"
                   />
                   <button
                     type="button"
                     onClick={() => setShowCurrentPass(!showCurrentPass)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600"
                   >
                     {showCurrentPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -819,218 +1030,96 @@ export default function SaaSSuperAdminProfile({ initialTab = 'overview', setActi
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">New Master Password</label>
+                <label className="block font-bold text-slate-700 mb-1">New Master Password</label>
                 <div className="relative">
                   <input
                     type={showNewPass ? 'text' : 'password'}
                     required
                     value={passwordForm.newPassword}
                     onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
-                    placeholder="Enter robust new password"
-                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition"
+                    className="w-full p-2.5 pr-9 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20"
                   />
                   <button
                     type="button"
                     onClick={() => setShowNewPass(!showNewPass)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600"
                   >
                     {showNewPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
 
-                {/* Password Strength Meter */}
+                {/* Password strength meter */}
                 {passwordForm.newPassword && (
-                  <div className="mt-2 space-y-1.5">
-                    <div className="flex justify-between items-center text-[10px]">
-                      <span className="text-slate-500">Password Strength:</span>
-                      <span className="font-bold text-slate-700">{passStrength.label}</span>
+                  <div className="mt-2 space-y-1">
+                    <div className="flex justify-between text-[11px] font-semibold text-slate-500">
+                      <span>Entropy Strength:</span>
+                      <span className="font-bold text-slate-800">{passStrength.label}</span>
                     </div>
-                    <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full ${passStrength.color} transition-all duration-300`}
-                        style={{ width: `${passStrength.score}%` }}
-                      ></div>
+                    <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                      <div className={`h-full ${passStrength.color} transition-all duration-300`} style={{ width: `${passStrength.score}%` }}></div>
                     </div>
                   </div>
                 )}
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">Confirm New Password</label>
+                <label className="block font-bold text-slate-700 mb-1">Confirm New Password</label>
                 <div className="relative">
                   <input
                     type={showConfirmPass ? 'text' : 'password'}
                     required
                     value={passwordForm.confirmPassword}
                     onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
-                    placeholder="Repeat new password"
-                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition"
+                    className="w-full p-2.5 pr-9 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20"
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPass(!showConfirmPass)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600"
                   >
                     {showConfirmPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
 
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-[11px] text-slate-600 space-y-1">
-                <span className="font-bold text-slate-700">Password Security Policy:</span>
-                <ul className="list-disc list-inside space-y-0.5 text-slate-500">
-                  <li>Minimum 8 characters (12+ recommended for root clearance)</li>
-                  <li>At least one capital letter &amp; one number</li>
-                  <li>Special cryptographic character required (@, #, $, %, etc.)</li>
-                </ul>
-              </div>
-
               <button
                 type="submit"
-                className="w-full py-3 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-xl shadow-md transition shadow-sky-600/20 flex items-center justify-center gap-2"
+                className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold shadow-md transition active:scale-95"
               >
-                <Lock className="w-4 h-4" />
-                <span>Commit Master Password Change</span>
+                Rotate Master Password
               </button>
             </form>
-          </div>
-
-          {/* Right Col: Hardware 2FA & Cryptographic Keys */}
-          <div className="space-y-6">
-            {/* Hardware Keys */}
-            <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-sm space-y-5">
-              <div>
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
-                    <Fingerprint className="w-4 h-4" />
-                  </div>
-                  <h2 className="text-lg font-bold text-slate-900">Multi-Factor Authentication (MFA)</h2>
-                </div>
-                <p className="text-xs text-slate-500 mt-1">
-                  Hardware FIDO2 Security Keys and backup biometric passkeys.
-                </p>
-              </div>
-
-              <div className="space-y-3 text-xs">
-                {/* YubiKey Primary */}
-                <div className="p-4 bg-emerald-50/70 border border-emerald-200/80 rounded-2xl flex items-start justify-between gap-3">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-emerald-950">YubiKey 5C NFC (Primary Hardware Key)</span>
-                      <span className="px-2 py-0.2 bg-emerald-600 text-white font-bold rounded text-[10px]">ACTIVE</span>
-                    </div>
-                    <p className="text-emerald-800 text-[11px]">
-                      Serial: #YK-98442-IND &bull; FIDO2 / WebAuthn Level 3 Token
-                    </p>
-                    <span className="text-[10px] text-emerald-700 block">Bound on: 12-Jan-2024 &bull; Physical Touch Enforced</span>
-                  </div>
-                  <button
-                    onClick={handleTestYubiKey}
-                    className="px-3 py-1.5 bg-white border border-emerald-300 text-emerald-800 rounded-xl font-bold hover:bg-emerald-100 transition shrink-0"
-                  >
-                    Verify
-                  </button>
-                </div>
-
-                {/* Backup Authenticator App */}
-                <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl flex items-start justify-between gap-3">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-slate-900">Google Authenticator (TOTP Fallback)</span>
-                      <span className="px-2 py-0.2 bg-slate-200 text-slate-700 font-bold rounded text-[10px]">STANDBY</span>
-                    </div>
-                    <p className="text-slate-500 text-[11px]">
-                      RFC 6238 6-Digit Time-based One Time Password generator
-                    </p>
-                    <span className="text-[10px] text-slate-400 block">Requires Super Admin PIN before generation</span>
-                  </div>
-                  <span className="text-xs font-semibold text-slate-600 py-1.5">Configured</span>
-                </div>
-
-                {/* Offline Emergency Recovery Codes */}
-                <div className="p-4 bg-amber-50/70 border border-amber-200/80 rounded-2xl flex items-start justify-between gap-3">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-amber-950">Disaster Recovery Codes</span>
-                      <span className="px-2 py-0.2 bg-amber-500 text-white font-bold rounded text-[10px]">10/10 UNUSED</span>
-                    </div>
-                    <p className="text-amber-800 text-[11px]">
-                      Single-use cryptographic recovery strings stored in physical bank vault.
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => showToast('Recovery codes can only be viewed inside physical HSM enclave.', 'info')}
-                    className="px-3 py-1.5 bg-white border border-amber-300 text-amber-900 rounded-xl font-bold hover:bg-amber-100 transition shrink-0"
-                  >
-                    Details
-                  </button>
-                </div>
-              </div>
-
-              {/* IP Range Access Whitelist */}
-              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-2 text-xs">
-                <span className="font-bold text-slate-800">Authorized Operator IP Subnets</span>
-                <div className="flex items-center justify-between font-mono bg-white p-2.5 rounded-xl border border-slate-200">
-                  <span className="text-slate-700 font-semibold">103.22.18.0/24 (Bengaluru IDC VPN)</span>
-                  <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded">Whitelisted</span>
-                </div>
-                <p className="text-[11px] text-slate-500">
-                  Access from external non-whitelisted IP addresses triggers automated geo-fenced root lock.
-                </p>
-              </div>
-            </div>
           </div>
         </div>
       )}
 
       {/* TAB 3: ROOT PRIVILEGES MATRIX */}
       {activeSubTab === 'privileges' && (
-        <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-sm space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-slate-100">
+        <div className="space-y-6">
+          <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-sm space-y-4">
             <div>
-              <h2 className="text-lg font-bold text-slate-900">Super Admin Root Privileges Matrix</h2>
-              <p className="text-xs text-slate-500">Exhaustive authorization ledger for Operator USR-SAAS-001.</p>
+              <h3 className="font-bold text-slate-900 text-base">Root Privilege Capabilities</h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Constitutional permissions bound to Vikramaditya Singhania (Global Root &bull; Clearance L0).
+              </p>
             </div>
-            <span className="px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 font-bold text-xs self-start sm:self-auto">
-              RBAC Clearance: Level 0 (Master)
-            </span>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {rootPrivileges.map((priv, idx) => (
-              <div
-                key={idx}
-                className="p-5 rounded-2xl bg-slate-50/70 border border-slate-200/80 hover:bg-white hover:shadow-md transition space-y-3 flex flex-col justify-between"
-              >
-                <div className="space-y-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
+              {rootPrivileges.map((p) => (
+                <div key={p.code} className="p-5 bg-slate-50/80 rounded-2xl border border-slate-100 space-y-2 hover:bg-slate-50 transition">
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-[10px] font-bold text-slate-400 bg-white px-2 py-0.5 rounded border border-slate-200">
-                      {priv.code}
-                    </span>
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${priv.badge}`}>
-                      {priv.level}
+                    <span className="font-mono font-bold text-slate-900 text-xs">{p.code}</span>
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${p.badge}`}>
+                      {p.level}
                     </span>
                   </div>
-                  <h3 className="font-bold text-slate-900 text-sm">{priv.title}</h3>
-                  <p className="text-xs text-slate-500 leading-relaxed">{priv.desc}</p>
+                  <h4 className="font-bold text-slate-900 text-sm">{p.title}</h4>
+                  <p className="text-slate-500 leading-relaxed text-xs">{p.desc}</p>
+                  <div className="pt-2 border-t border-slate-200/60 text-[11px] font-mono text-slate-400">
+                    Scope: {p.scope}
+                  </div>
                 </div>
-
-                <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-[11px]">
-                  <span className="text-slate-400">Jurisdiction:</span>
-                  <span className="font-semibold text-slate-700">{priv.scope}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Compliance & NABH Statement */}
-          <div className="p-5 rounded-2xl bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-100 flex items-start gap-3">
-            <ShieldCheck className="w-5 h-5 text-purple-700 mt-0.5 shrink-0" />
-            <div className="text-xs text-purple-950 space-y-1">
-              <span className="font-bold block">NABH Digital Health Safety &amp; HIPAA Audit Lock</span>
-              <p className="text-purple-900/90 leading-relaxed">
-                All actions executed under Level-0 Root clearance are cryptographically timestamped and replicated to an immutable write-once read-many (WORM) audit ledger. No operator (including Super Admin) can erase or modify the system audit history.
-              </p>
+              ))}
             </div>
           </div>
         </div>
@@ -1038,55 +1127,54 @@ export default function SaaSSuperAdminProfile({ initialTab = 'overview', setActi
 
       {/* TAB 4: OPERATOR AUDIT TRAIL */}
       {activeSubTab === 'audit' && (
-        <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-sm space-y-5">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+        <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden space-y-0">
+          <div className="p-6 border-b border-slate-100 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-bold text-slate-900">Administrative Audit Activity</h2>
-              <p className="text-xs text-slate-500">Real-time audit log of actions initiated by operator USR-SAAS-001.</p>
+              <h3 className="font-bold text-slate-900 text-base">Personal Operational Audit Stream</h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Cryptographically signed actions committed by your active session token.
+              </p>
             </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handleExportDossier}
-                className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center gap-1.5 transition"
-              >
-                <Download className="w-3.5 h-3.5 text-slate-500" />
-                <span>Export Audit CSV</span>
-              </button>
-            </div>
+            <button
+              onClick={() => showToast('Audit stream proof exported with verified HMAC.', 'success')}
+              className="inline-flex items-center gap-1.5 text-xs text-sky-600 hover:text-sky-700 font-bold"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Export Audit Proof</span>
+            </button>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr className="border-b border-slate-200 bg-slate-50/80 text-slate-600 font-bold">
-                  <th className="py-3 px-4 rounded-l-xl">Log ID</th>
-                  <th className="py-3 px-4">Action Event</th>
-                  <th className="py-3 px-4">Target Resource</th>
-                  <th className="py-3 px-4">Timestamp</th>
-                  <th className="py-3 px-4">IP Address</th>
-                  <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4 rounded-r-xl">Details</th>
+          <div className="overflow-x-auto no-scrollbar">
+            <table className="w-full text-left text-xs table-auto">
+              <thead className="bg-slate-50/80 text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-100">
+                <tr>
+                  <th className="px-4 py-3.5 whitespace-nowrap">Event ID</th>
+                  <th className="px-4 py-3.5 whitespace-nowrap">Action</th>
+                  <th className="px-4 py-3.5 whitespace-nowrap">Target Entity</th>
+                  <th className="px-4 py-3.5">Details</th>
+                  <th className="px-4 py-3.5 whitespace-nowrap">Timestamp &amp; IP</th>
+                  <th className="px-4 py-3.5 whitespace-nowrap text-right">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
-                {operatorActions.map((item) => (
-                  <tr key={item.id} className="hover:bg-slate-50/80 transition">
-                    <td className="py-3.5 px-4 font-mono font-bold text-slate-800">{item.id}</td>
-                    <td className="py-3.5 px-4 font-semibold text-slate-900">
-                      <span className="font-mono text-[11px] bg-slate-100 px-2 py-0.5 rounded text-slate-700">
-                        {item.action}
+              <tbody className="divide-y divide-slate-100 text-slate-700">
+                {operatorActions.map((op) => (
+                  <tr key={op.id} className="hover:bg-slate-50/70 transition">
+                    <td className="px-4 py-3.5 whitespace-nowrap font-mono font-bold text-sky-700">{op.id}</td>
+                    <td className="px-4 py-3.5 whitespace-nowrap">
+                      <span className="bg-indigo-50 border border-indigo-200/60 px-2 py-0.5 rounded text-[11px] font-mono font-bold text-indigo-700">
+                        {op.action}
                       </span>
                     </td>
-                    <td className="py-3.5 px-4 font-medium text-slate-800">{item.target}</td>
-                    <td className="py-3.5 px-4 text-slate-500 text-[11px]">{item.time}</td>
-                    <td className="py-3.5 px-4 font-mono text-slate-600 text-[11px]">{item.ip}</td>
-                    <td className="py-3.5 px-4">
-                      <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 font-bold rounded-full text-[10px] border border-emerald-200">
-                        {item.status}
-                      </span>
+                    <td className="px-4 py-3.5 whitespace-nowrap font-medium text-slate-900">{op.target}</td>
+                    <td className="px-4 py-3.5 text-slate-600 max-w-xs truncate" title={op.details}>{op.details}</td>
+                    <td className="px-4 py-3.5 whitespace-nowrap">
+                      <div className="font-mono text-slate-600 text-[11px]">{op.time}</div>
+                      <div className="font-mono text-slate-400 text-[10px]">{op.ip}</div>
                     </td>
-                    <td className="py-3.5 px-4 text-slate-500 text-[11px] max-w-xs truncate" title={item.details}>
-                      {item.details}
+                    <td className="px-4 py-3.5 whitespace-nowrap text-right">
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        {op.status}
+                      </span>
                     </td>
                   </tr>
                 ))}
@@ -1098,55 +1186,48 @@ export default function SaaSSuperAdminProfile({ initialTab = 'overview', setActi
 
       {/* TAB 5: ACTIVE SESSIONS & DEVICES */}
       {activeSubTab === 'sessions' && (
-        <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-sm space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+        <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-sm space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
             <div>
-              <h2 className="text-lg font-bold text-slate-900">Authorized Devices & Active Sessions</h2>
-              <p className="text-xs text-slate-500">Currently valid cryptographic session tokens linked to this account.</p>
+              <h3 className="font-bold text-slate-900 text-base">Active Operator Sessions &amp; Devices</h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Devices authorized with cryptographic session tokens to access Super Admin commands.
+              </p>
             </div>
             {sessions.length > 1 && (
               <button
                 onClick={() => {
-                  setSessions(prev => prev.filter(s => s.isCurrent));
-                  showToast('All remote sessions terminated successfully.', 'info');
+                  setSessions(sessions.filter(s => s.isCurrent));
+                  showToast('All other remote sessions revoked.', 'info');
                 }}
-                className="px-3.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold transition"
+                className="px-3.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold transition active:scale-95"
               >
                 Revoke All Other Sessions
               </button>
             )}
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             {sessions.map((ses) => (
               <div
                 key={ses.id}
-                className={`p-5 rounded-2xl border transition flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
-                  ses.isCurrent
-                    ? 'bg-sky-50/50 border-sky-200/80'
-                    : 'bg-white border-slate-200/80 hover:bg-slate-50/60'
-                }`}
+                className="p-4 rounded-2xl border border-slate-100 bg-slate-50/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
               >
-                <div className="flex items-start gap-4">
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${
-                    ses.isCurrent ? 'bg-sky-500 text-white shadow-md' : 'bg-slate-100 text-slate-600'
-                  }`}>
-                    {ses.device.includes('iPhone') ? <Smartphone className="w-6 h-6" /> : <Laptop className="w-6 h-6" />}
+                <div className="flex items-start gap-3.5">
+                  <div className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-700 mt-0.5">
+                    {ses.device.includes('iPhone') ? <Smartphone className="w-5 h-5 text-indigo-600" /> : <Laptop className="w-5 h-5 text-sky-600" />}
                   </div>
-
-                  <div className="space-y-1 text-xs">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-bold text-slate-900 text-sm">{ses.device}</span>
-                      {ses.isCurrent && (
-                        <span className="px-2 py-0.5 bg-sky-600 text-white font-bold rounded-full text-[10px]">
-                          This Current Device
-                        </span>
-                      )}
+                  <div className="space-y-0.5 text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-slate-900">{ses.device}</span>
+                      <span className="font-mono text-[10px] text-slate-400 bg-white px-2 py-0.5 rounded border border-slate-200">
+                        {ses.id}
+                      </span>
                     </div>
-                    <div className="text-slate-500 text-[11px] flex flex-wrap items-center gap-2">
+                    <div className="text-slate-500 flex flex-wrap items-center gap-2 text-[11px]">
                       <span>{ses.browser}</span>
                       <span>&bull;</span>
-                      <span className="font-mono text-slate-700 font-semibold">{ses.ip}</span>
+                      <span className="font-mono">{ses.ip}</span>
                       <span>&bull;</span>
                       <span>{ses.location}</span>
                     </div>
@@ -1162,12 +1243,12 @@ export default function SaaSSuperAdminProfile({ initialTab = 'overview', setActi
                   {ses.isCurrent ? (
                     <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-xl border border-emerald-200">
                       <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                      Active Now
+                      <span>Active Now</span>
                     </span>
                   ) : (
                     <button
                       onClick={() => handleTerminateSession(ses.id)}
-                      className="px-3.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold transition"
+                      className="px-3.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold transition active:scale-95"
                     >
                       Revoke Access
                     </button>
@@ -1178,98 +1259,6 @@ export default function SaaSSuperAdminProfile({ initialTab = 'overview', setActi
           </div>
         </div>
       )}
-
-      {/* ================= EDIT PROFILE MODAL ================= */}
-      <Modal
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        title="Edit Super Admin Profile Dossier"
-      >
-        <form onSubmit={handleSaveProfile} className="space-y-4 text-xs">
-          <div>
-            <label className="block font-semibold text-slate-700 mb-1">Full Legal Name</label>
-            <input
-              type="text"
-              required
-              value={editForm.fullName}
-              onChange={(e) => setEditForm({ ...editForm, fullName: e.target.value })}
-              className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="block font-semibold text-slate-700 mb-1">Emergency Phone</label>
-              <input
-                type="text"
-                required
-                value={editForm.phone}
-                onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
-                className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500"
-              />
-            </div>
-            <div>
-              <label className="block font-semibold text-slate-700 mb-1">Assigned Department</label>
-              <input
-                type="text"
-                required
-                value={editForm.department}
-                onChange={(e) => setEditForm({ ...editForm, department: e.target.value })}
-                className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="block font-semibold text-slate-700 mb-1">Datacenter / Office Location</label>
-              <input
-                type="text"
-                required
-                value={editForm.location}
-                onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
-                className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500"
-              />
-            </div>
-            <div>
-              <label className="block font-semibold text-slate-700 mb-1">Standard Timezone</label>
-              <input
-                type="text"
-                required
-                value={editForm.timezone}
-                onChange={(e) => setEditForm({ ...editForm, timezone: e.target.value })}
-                className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block font-semibold text-slate-700 mb-1">Platform Mission Bio &amp; Scope</label>
-            <textarea
-              rows={3}
-              value={editForm.bio}
-              onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })}
-              className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500"
-            />
-          </div>
-
-          <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
-            <button
-              type="button"
-              onClick={() => setIsEditModalOpen(false)}
-              className="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl font-bold hover:bg-slate-50"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-5 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-xl font-bold shadow-md transition shadow-sky-600/20"
-            >
-              Save Profile Changes
-            </button>
-          </div>
-        </form>
-      </Modal>
     </div>
   );
 }

@@ -101,26 +101,62 @@
   background: #94a3b8;
 }
 
-/* Hide scrollbar completely for sidebar and seamless containers */
-.custom-scrollbar,
+/* Hide scrollbar completely only when explicitly requested */
 .no-scrollbar {
   -ms-overflow-style: none !important;
   scrollbar-width: none !important;
 }
-.custom-scrollbar::-webkit-scrollbar,
 .no-scrollbar::-webkit-scrollbar {
   display: none !important;
   width: 0px !important;
   height: 0px !important;
   background: transparent !important;
 }
-.custom-scrollbar::-webkit-scrollbar-track,
 .no-scrollbar::-webkit-scrollbar-track {
   background: transparent !important;
 }
-.custom-scrollbar::-webkit-scrollbar-thumb,
 .no-scrollbar::-webkit-scrollbar-thumb {
   background: transparent !important;
+}
+
+/* Subtle sleek scrollbar for custom-scrollbar containers */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Dark theme scrollbar for dark navy sidebars */
+.custom-scrollbar-dark {
+  scrollbar-width: thin;
+  scrollbar-color: #334155 transparent;
+}
+.custom-scrollbar-dark::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+.custom-scrollbar-dark::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar-dark::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+.custom-scrollbar-dark::-webkit-scrollbar-thumb:hover {
+  background: #475569;
 }
 
 /* Print Styling */
@@ -144,5 +180,40 @@
   }
   .no-print {
     display: none !important;
+  }
+}
+
+/* ── Cross-Device & Mobile Responsiveness System ── */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Native smooth momentum scrolling on iOS & Android touch devices */
+.overflow-x-auto, 
+.overflow-y-auto {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent unwanted zoom-in on focus on iOS Safari & mobile browsers */
+@media screen and (max-width: 767px) {
+  input[type="text"],
+  input[type="number"],
+  input[type="email"],
+  input[type="password"],
+  input[type="search"],
+  input[type="tel"],
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Extra small device breakpoint helper */
+@media screen and (max-width: 375px) {
+  .xs-stack {
+    flex-direction: column !important;
+    align-items: stretch !important;
   }
 }

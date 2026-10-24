@@ -1,52 +1,147 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth, demoAccounts } from '../context/AuthContext';
 import Modal from './Modal';
 import { 
-  Building2, 
+  Search, 
+  Bell, 
+  Sparkles, 
+  Command, 
+  Clock, 
   ChevronDown, 
   LogOut, 
-  Activity, 
+  User, 
   ShieldCheck, 
   Stethoscope, 
   CreditCard, 
   ClipboardList,
-  User,
-  Award,
+  HeartPulse, 
+  Pill, 
+  UserCheck, 
+  Server, 
+  Building2, 
+  Menu, 
+  X, 
+  Zap, 
+  CheckCircle2, 
+  Activity, 
+  Layers,
+  ArrowRight,
+  SlidersHorizontal,
+  CalendarClock,
+  UserPlus,
+  Receipt,
+  FlaskConical,
   Phone,
   Mail,
-  Clock,
-  Calendar,
-  Lock,
-  CheckCircle,
-  FileText,
-  Server,
-  HeartPulse,
-  Pill,
-  UserCheck,
-  Menu
+  Award,
+  Check
 } from 'lucide-react';
 
 export default function Navbar({ mobileOpen, setMobileOpen, activeTab, setActiveTab }) {
   const { user, tenant, quickLogin, logout } = useAuth();
+  
+  // States
   const [showSwitcher, setShowSwitcher] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentTime, setCurrentTime] = useState('');
+
+  const searchInputRef = useRef(null);
 
   const isSuperAdmin = user?.role === 'super_admin';
 
-  const getRoleIcon = (role) => {
-    switch (role) {
-      case 'super_admin': return <Server className="w-4 h-4 text-indigo-600" />;
-      case 'hospital_admin': return <ShieldCheck className="w-4 h-4 text-purple-600" />;
-      case 'receptionist': return <ClipboardList className="w-4 h-4 text-blue-600" />;
-      case 'doctor': return <Stethoscope className="w-4 h-4 text-emerald-600" />;
-      case 'nurse': return <HeartPulse className="w-4 h-4 text-rose-600" />;
-      case 'billing_executive': return <CreditCard className="w-4 h-4 text-amber-600" />;
-      case 'pharmacist': return <Pill className="w-4 h-4 text-teal-600" />;
-      case 'patient': return <UserCheck className="w-4 h-4 text-cyan-600" />;
-      default: return <User className="w-4 h-4 text-slate-600" />;
+  // Live Clock updater
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      setCurrentTime(
+        now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      );
+    };
+    updateTime();
+    const interval = setInterval(updateTime, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Keyboard shortcut for Cmd/Ctrl + K Spotlight search
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setSearchOpen((prev) => !prev);
+      }
+      if (e.key === 'Escape') {
+        setSearchOpen(false);
+        setShowSwitcher(false);
+        setShowUserMenu(false);
+        setShowNotifications(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  useEffect(() => {
+    if (searchOpen && searchInputRef.current) {
+      setTimeout(() => searchInputRef.current?.focus(), 50);
+    }
+  }, [searchOpen]);
+
+  // Tab Breadcrumbs & Context
+  const getTabInfo = (tab) => {
+    switch (tab) {
+      case 'saas_overview':
+        return { section: 'SaaS Platform', title: 'Global Multi-Tenant Mesh', icon: Server, color: 'text-indigo-600 bg-indigo-50 border-indigo-200' };
+      case 'saas_tenants':
+        return { section: 'SaaS Platform', title: 'Hospital Tenant Clusters', icon: Building2, color: 'text-indigo-600 bg-indigo-50 border-indigo-200' };
+      case 'clinical':
+        return { section: 'Clinical Workspace', title: 'Doctor Live OPD Encounter', icon: Stethoscope, color: 'text-emerald-600 bg-emerald-50 border-emerald-200' };
+      case 'appointments':
+        return { section: 'Front Desk', title: 'OPD Appointments & Queue', icon: CalendarClock, color: 'text-blue-600 bg-blue-50 border-blue-200' };
+      case 'patients':
+        return { section: 'Registration', title: 'Patient Registration & EMR', icon: UserPlus, color: 'text-sky-600 bg-sky-50 border-sky-200' };
+      case 'nurse_station':
+      case 'nurse_dashboard':
+        return { section: 'Inpatient Care', title: 'Nurse Station & Triage', icon: HeartPulse, color: 'text-rose-600 bg-rose-50 border-rose-200' };
+      case 'billing':
+      case 'billing_dashboard':
+        return { section: 'Revenue & Finance', title: 'Billing, Tariffs & Cashier', icon: Receipt, color: 'text-amber-600 bg-amber-50 border-amber-200' };
+      case 'pharmacy_dashboard':
+      case 'pharmacy_lab':
+        return { section: 'Diagnostics', title: 'Pharmacy & Laboratory Orders', icon: Pill, color: 'text-teal-600 bg-teal-50 border-teal-200' };
+      case 'patient_dashboard':
+      case 'patient_portal':
+        return { section: 'Patient Portal', title: 'My Health Records & Tokens', icon: UserCheck, color: 'text-cyan-600 bg-cyan-50 border-cyan-200' };
+      default:
+        return { section: isSuperAdmin ? 'Platform Root' : 'Hospital ERP', title: 'Operational Command Center', icon: Activity, color: 'text-brand-600 bg-brand-50 border-brand-200' };
     }
   };
 
+  const currentTabInfo = getTabInfo(activeTab);
+  const TabIcon = currentTabInfo.icon;
+
+  // Search shortcuts
+  const navigationShortcuts = [
+    { id: 'dashboard', label: 'Overview Dashboard', category: 'General', icon: Activity },
+    { id: 'patients', label: 'Patient Registration & New OPD', category: 'Clinical', icon: UserPlus },
+    { id: 'appointments', label: 'Appointments & Token Queue', category: 'Front Desk', icon: CalendarClock },
+    { id: 'clinical', label: 'Doctor OPD Consultation Desk', category: 'Clinical', icon: Stethoscope },
+    { id: 'nurse_station', label: 'Nurse Station Triage & Vitals', category: 'Nursing', icon: HeartPulse },
+    { id: 'billing', label: 'Billing Invoices & Tariff Receipts', category: 'Finance', icon: Receipt },
+    { id: 'pharmacy_dashboard', label: 'Pharmacy Dispensary & Stock', category: 'Pharmacy', icon: Pill },
+    { id: 'lab_orders', label: 'Lab Orders & Pathology Tests', category: 'Diagnostics', icon: FlaskConical },
+    { id: 'staff', label: 'Hospital Staff & Practitioners', category: 'Admin', icon: User },
+    { id: 'hospital_settings', label: 'Hospital Configuration & Tariffs', category: 'Admin', icon: SlidersHorizontal },
+  ];
+
+  const filteredShortcuts = searchQuery.trim() === '' 
+    ? navigationShortcuts 
+    : navigationShortcuts.filter(s => s.label.toLowerCase().includes(searchQuery.toLowerCase()) || s.category.toLowerCase().includes(searchQuery.toLowerCase()));
+
+  // Role badges & icons
   const getRoleBadge = (role) => {
     switch (role) {
       case 'super_admin': return 'bg-indigo-500/10 text-indigo-700 border-indigo-300';
@@ -61,255 +156,452 @@ export default function Navbar({ mobileOpen, setMobileOpen, activeTab, setActive
     }
   };
 
-  const formatRoleName = (role) => {
+  const getRoleIcon = (role) => {
+    switch (role) {
+      case 'super_admin': return <Server className="w-3.5 h-3.5 text-indigo-600" />;
+      case 'hospital_admin': return <ShieldCheck className="w-3.5 h-3.5 text-purple-600" />;
+      case 'receptionist': return <ClipboardList className="w-3.5 h-3.5 text-blue-600" />;
+      case 'doctor': return <Stethoscope className="w-3.5 h-3.5 text-emerald-600" />;
+      case 'nurse': return <HeartPulse className="w-3.5 h-3.5 text-rose-600" />;
+      case 'billing_executive': return <CreditCard className="w-3.5 h-3.5 text-amber-600" />;
+      case 'pharmacist': return <Pill className="w-3.5 h-3.5 text-teal-600" />;
+      case 'patient': return <UserCheck className="w-3.5 h-3.5 text-cyan-600" />;
+      default: return <User className="w-3.5 h-3.5 text-slate-600" />;
+    }
+  };
+
+  const formatRole = (role) => {
     if (!role) return '';
     return role.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
   };
 
+  // Mock live hospital notifications
+  const notifications = [
+    { id: 1, title: 'Patient Token #104 Checked-in', time: '2m ago', desc: 'Rajesh Kumar arrived at General OPD Room 3', unread: true },
+    { id: 2, title: 'Urgent Vitals Alert', time: '14m ago', desc: 'Nurse Marykutty marked BP 148/96 for Bed #12', unread: true },
+    { id: 3, title: 'Prescription Dispensed', time: '35m ago', desc: 'Amoxicillin 500mg batch #B-204 dispensed to patient', unread: false },
+    { id: 4, title: 'Payment Receipt #INV-9204', time: '1h ago', desc: '₹850 collected via UPI at Billing Counter 1', unread: false },
+  ];
+
   return (
     <>
-      <header className="h-16 bg-white/90 backdrop-blur-md border-b border-slate-200 px-4 sm:px-6 lg:px-8 pr-6 sm:pr-10 lg:pr-16 flex items-center justify-between sticky top-0 z-30 shadow-sm no-print">
-        {/* Brand & Context */}
-        <div className="flex items-center space-x-3 sm:space-x-4">
-          {setMobileOpen && (
-            <button
-              onClick={() => setMobileOpen(!mobileOpen)}
-              className="md:hidden p-2 text-slate-500 hover:text-slate-800 rounded-xl hover:bg-slate-100 transition"
-              title="Toggle Menu"
-            >
-              <Menu className="w-5 h-5" />
-            </button>
-          )}
+      {/* ── TOP NAVBAR BAR (Positioned after the Sidebar) ── */}
+      <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-slate-200/80 px-4 sm:px-6 lg:px-8 py-2.5 transition-all duration-200 shadow-sm no-print">
+        <div className="flex items-center justify-between gap-3 sm:gap-4">
+          
+          {/* Left: Mobile Toggle + Breadcrumb Module Identity */}
+          <div className="flex items-center space-x-3 min-w-0">
+            {setMobileOpen && (
+              <button
+                type="button"
+                onClick={() => setMobileOpen(!mobileOpen)}
+                className="md:hidden p-2 text-slate-600 hover:text-slate-950 rounded-xl hover:bg-slate-100 transition shrink-0 border border-slate-200"
+                title="Toggle Menu"
+              >
+                <Menu className="w-5 h-5" />
+              </button>
+            )}
 
-          <div className="flex items-center space-x-2.5">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-600 via-sky-600 to-indigo-700 flex items-center justify-center text-white shadow-md shadow-brand-500/25 shrink-0">
-              <Activity className="w-5 h-5 animate-pulse" />
-            </div>
-            <div>
-              <div className="flex items-center space-x-2">
-                <span className="font-extrabold text-base sm:text-lg text-slate-900 tracking-tight">LAZFORT</span>
-                <span className="text-[10px] uppercase tracking-wider font-extrabold bg-brand-50 text-brand-700 px-2 py-0.5 rounded border border-brand-200">
-                  {isSuperAdmin ? 'SaaS Control' : 'Hospital ERP'}
-                </span>
-                <span className="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full font-bold hidden sm:inline-flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
-                  {isSuperAdmin ? 'Global Root Mesh' : 'Multi-Tenant Scoped'}
-                </span>
+            {/* Dynamic Breadcrumbs & Section Title */}
+            <div className="flex items-center space-x-2.5 min-w-0">
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center border shadow-xs shrink-0 ${currentTabInfo.color}`}>
+                <TabIcon className="w-4 h-4" />
               </div>
-              <p className="text-xs text-slate-500 flex items-center">
-                <Building2 className="w-3.5 h-3.5 mr-1 text-slate-400 shrink-0" />
-                <span className="truncate max-w-[200px] sm:max-w-none">
-                  {isSuperAdmin
-                    ? 'Global Cloud Platform Operations &bull; 24 Hospital Clusters'
-                    : `${tenant?.name || 'Lazfort Memorial Hospital'} • Indiranagar Campus`}
-                </span>
-              </p>
+
+              <div className="min-w-0">
+                <div className="flex items-center space-x-2">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 truncate">
+                    {currentTabInfo.section}
+                  </span>
+                  <span className="text-slate-300 text-xs hidden sm:inline">&bull;</span>
+                  <span className="text-xs font-black text-slate-800 truncate hidden sm:inline">
+                    {currentTabInfo.title}
+                  </span>
+                </div>
+                <div className="flex items-center space-x-1.5 text-[11px] text-slate-500">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
+                  <span className="truncate font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200 text-[10px]">
+                    {isSuperAdmin ? 'Global Root Active' : (tenant?.name || 'Lazfort Hospital Main')}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Right Controls: Role Switcher & Doctor Profile Pill */}
-        <div className="flex items-center space-x-3 sm:space-x-4 mr-4 sm:mr-8 lg:mr-14">
-          {/* Quick Persona Switcher for pair testing */}
-          <div className="relative">
+          {/* Center: Command Palette Trigger Search Bar */}
+          <div className="hidden lg:flex flex-1 max-w-md mx-2">
             <button
-              onClick={() => setShowSwitcher(!showSwitcher)}
-              className="flex items-center space-x-2 text-xs font-semibold px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 transition shadow-sm"
-              title="Switch demo persona for testing"
+              type="button"
+              onClick={() => setSearchOpen(true)}
+              className="w-full flex items-center justify-between px-3.5 py-1.5 bg-slate-100/80 hover:bg-slate-100 text-slate-400 hover:text-slate-600 rounded-xl border border-slate-200/90 text-xs transition group shadow-xs cursor-pointer"
             >
-              <span className="text-slate-400 font-normal">Role:</span>
-              <span className="font-bold text-brand-700 flex items-center gap-1">
-                {getRoleIcon(user?.role)}
-                {formatRoleName(user?.role)}
-              </span>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+              <div className="flex items-center space-x-2 truncate">
+                <Search className="w-3.5 h-3.5 text-slate-400 group-hover:text-brand-600 transition" />
+                <span className="truncate">Search patients, tokens, invoices, records...</span>
+              </div>
+              <div className="flex items-center space-x-1 text-[10px] font-mono font-bold bg-white px-2 py-0.5 rounded-md border border-slate-200 text-slate-500 shadow-2xs shrink-0 ml-2">
+                <Command className="w-3 h-3" />
+                <span>K</span>
+              </div>
             </button>
+          </div>
 
-            {showSwitcher && (
-              <div className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-2xl border border-slate-200 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-                <div className="px-3 py-1.5 border-b border-slate-100 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                  Switch Active Persona
+          {/* Right: Actions, Notifications, Switcher & User Avatar */}
+          <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
+            {/* Live Clock Pill (hidden on very small screens) */}
+            <div className="hidden xl:flex items-center space-x-1.5 text-xs text-slate-600 bg-slate-50 border border-slate-200/80 px-2.5 py-1 rounded-xl shadow-xs">
+              <Clock className="w-3.5 h-3.5 text-slate-400" />
+              <span className="font-semibold tabular-nums text-slate-700">{currentTime || '01:00 PM'}</span>
+            </div>
+
+            {/* Quick Action Button */}
+            {!isSuperAdmin && (
+              <button
+                type="button"
+                onClick={() => setActiveTab && setActiveTab('patients')}
+                className="hidden sm:inline-flex items-center space-x-1.5 px-3 py-1.5 bg-gradient-to-r from-brand-600 to-sky-600 hover:from-brand-700 hover:to-sky-700 text-white rounded-xl text-xs font-bold shadow-sm shadow-brand-600/20 transition active:scale-95"
+                title="Register New Patient"
+              >
+                <Zap className="w-3.5 h-3.5" />
+                <span>+ New OPD</span>
+              </button>
+            )}
+
+            {/* Notifications Hub */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowNotifications(!showNotifications);
+                  setShowSwitcher(false);
+                  setShowUserMenu(false);
+                }}
+                className="relative p-2 text-slate-500 hover:text-slate-800 rounded-xl hover:bg-slate-100 transition border border-transparent hover:border-slate-200"
+                title="Notifications"
+              >
+                <Bell className="w-4 h-4" />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-white"></span>
+              </button>
+
+              {/* Notifications Dropdown */}
+              {showNotifications && (
+                <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-slate-200 p-3 z-50 animate-in fade-in slide-in-from-top-2 duration-150 text-xs">
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-100 px-1">
+                    <span className="font-black text-slate-800">Clinical Alerts & Notifications</span>
+                    <span className="text-[10px] font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full border border-brand-200">2 New</span>
+                  </div>
+                  <div className="divide-y divide-slate-100 max-h-72 overflow-y-auto my-1">
+                    {notifications.map((n) => (
+                      <div key={n.id} className="py-2.5 px-2 hover:bg-slate-50 rounded-xl transition cursor-pointer">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-slate-800 flex items-center gap-1.5">
+                            {n.unread && <span className="w-1.5 h-1.5 rounded-full bg-brand-600 shrink-0"></span>}
+                            {n.title}
+                          </span>
+                          <span className="text-[10px] text-slate-400">{n.time}</span>
+                        </div>
+                        <p className="text-[11px] text-slate-500 mt-0.5">{n.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="pt-2 border-t border-slate-100 text-center">
+                    <button
+                      type="button"
+                      onClick={() => setShowNotifications(false)}
+                      className="text-brand-600 hover:text-brand-700 font-bold text-[11px]"
+                    >
+                      Dismiss & Close
+                    </button>
+                  </div>
                 </div>
-                {demoAccounts.map((account) => (
-                  <button
-                    key={account.role}
-                    onClick={() => {
-                      quickLogin(account.role);
-                      setShowSwitcher(false);
-                    }}
-                    className={`w-full text-left px-3.5 py-2.5 text-xs hover:bg-slate-50 flex flex-col transition ${
-                      user?.role === account.role ? 'bg-brand-50/80 border-l-4 border-brand-600' : ''
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-slate-800">{account.roleName}</span>
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded border ${account.badge}`}>
-                        {account.role}
+              )}
+            </div>
+
+            {/* Persona Switcher Pill */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowSwitcher(!showSwitcher);
+                  setShowUserMenu(false);
+                  setShowNotifications(false);
+                }}
+                className="flex items-center space-x-1.5 px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200/80 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 transition"
+                title="Switch active demo persona"
+              >
+                <div className="flex items-center space-x-1">
+                  {getRoleIcon(user?.role)}
+                  <span className="hidden sm:inline font-bold text-slate-800 text-[11px]">
+                    {formatRole(user?.role)}
+                  </span>
+                </div>
+                <ChevronDown className="w-3 h-3 text-slate-400" />
+              </button>
+
+              {/* Persona Switcher Dropdown */}
+              {showSwitcher && (
+                <div className="absolute right-0 mt-2 w-72 sm:w-80 bg-white rounded-2xl shadow-2xl border border-slate-200 p-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="px-3 py-2 border-b border-slate-100 flex items-center justify-between">
+                    <div>
+                      <p className="text-[11px] font-black uppercase tracking-wider text-slate-500">Quick Persona Switch</p>
+                      <p className="text-[10px] text-slate-400">One-click role toggle for multi-user workflow</p>
+                    </div>
+                    <Sparkles className="w-4 h-4 text-brand-600" />
+                  </div>
+
+                  <div className="max-h-80 overflow-y-auto space-y-1 py-1.5">
+                    {demoAccounts.map((account) => {
+                      const isActive = user?.role === account.role;
+                      return (
+                        <button
+                          key={account.role}
+                          onClick={() => {
+                            quickLogin(account.role);
+                            setShowSwitcher(false);
+                          }}
+                          className={`w-full text-left p-2 rounded-xl flex items-center justify-between transition ${
+                            isActive ? 'bg-brand-50 border border-brand-200 shadow-2xs' : 'hover:bg-slate-50'
+                          }`}
+                        >
+                          <div className="flex items-center space-x-2.5 min-w-0">
+                            <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
+                              {getRoleIcon(account.role)}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-xs font-bold text-slate-800 truncate">{account.roleName}</p>
+                              <p className="text-[10px] text-slate-400 truncate">{account.name}</p>
+                            </div>
+                          </div>
+                          {isActive ? (
+                            <span className="w-5 h-5 rounded-full bg-brand-600 text-white flex items-center justify-center shrink-0">
+                              <Check className="w-3 h-3" />
+                            </span>
+                          ) : (
+                            <span className={`text-[9px] px-1.5 py-0.5 rounded border font-semibold ${account.badge}`}>
+                              Switch
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Profile Avatar & Popover Menu */}
+            <div className="relative pl-1 sm:pl-2 border-l border-slate-200">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowUserMenu(!showUserMenu);
+                  setShowSwitcher(false);
+                  setShowNotifications(false);
+                }}
+                className="flex items-center space-x-2 p-1 rounded-xl hover:bg-slate-100 transition group"
+                title={`${user?.fullName || 'User'} Menu`}
+              >
+                <div className="relative">
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-brand-600 via-sky-600 to-indigo-700 p-0.5 shadow-sm group-hover:shadow-md transition">
+                    <div className="w-full h-full rounded-[10px] bg-white flex items-center justify-center font-black text-xs text-brand-700">
+                      {user?.fullName?.charAt(0)?.toUpperCase() || 'U'}
+                    </div>
+                  </div>
+                  <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full" />
+                </div>
+              </button>
+
+              {/* User Menu Dropdown */}
+              {showUserMenu && (
+                <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-slate-200 p-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150 text-xs">
+                  <div className="p-2.5 border-b border-slate-100 bg-slate-50/60 rounded-xl mb-1">
+                    <p className="font-extrabold text-slate-900 truncate">{user?.fullName || 'Hospital User'}</p>
+                    <p className="text-[11px] text-slate-500 truncate">{user?.email || 'user@lazfort.com'}</p>
+                    <div className="mt-2 flex items-center gap-1.5">
+                      <span className={`text-[10px] px-2 py-0.5 rounded-md border font-bold ${getRoleBadge(user?.role)}`}>
+                        {formatRole(user?.role)}
                       </span>
                     </div>
-                    <span className="text-slate-500 text-[11px] mt-0.5">{account.name}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+                  </div>
 
-          {/* Profile Icon Button (Opens Doctor Profile Account Modal) */}
-          <div className="pl-2.5 sm:pl-3 border-l border-slate-200 flex items-center space-x-2 mr-2 sm:mr-4">
-            <button
-              onClick={() => setShowProfileModal(true)}
-              className="relative group focus:outline-none"
-              title={`${user?.fullName || 'Profile'} — Click to view account`}
-            >
-              {/* Circular Profile Avatar */}
-              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-brand-600 via-sky-500 to-indigo-600 p-0.5 shadow-md shadow-brand-500/30 group-hover:scale-105 group-hover:shadow-lg group-hover:shadow-brand-500/40 transition-all duration-200">
-                <div className="w-full h-full rounded-full bg-white flex items-center justify-center font-black text-sm text-brand-700">
-                  {user?.fullName?.charAt(0)?.toUpperCase() || <User className="w-5 h-5 text-brand-600" />}
+                  <div className="space-y-1 py-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowProfileModal(true);
+                        setShowUserMenu(false);
+                      }}
+                      className="w-full text-left px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100 flex items-center justify-between transition font-medium"
+                    >
+                      <span className="flex items-center gap-2">
+                        <User className="w-3.5 h-3.5 text-slate-500" />
+                        <span>View Credentials & Profile</span>
+                      </span>
+                      <ArrowRight className="w-3 h-3 text-slate-400" />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        logout();
+                        setShowUserMenu(false);
+                      }}
+                      className="w-full text-left px-3 py-2 rounded-xl text-rose-600 hover:bg-rose-50 flex items-center gap-2 transition font-bold"
+                    >
+                      <LogOut className="w-3.5 h-3.5 text-rose-500" />
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
                 </div>
-              </div>
-              {/* Online Status Dot */}
-              <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full" />
-            </button>
+              )}
+            </div>
+
           </div>
         </div>
       </header>
 
-      {/* ================= DOCTOR PROFILE ACCOUNT DETAILS MODAL ================= */}
+      {/* ── COMMAND SPOTLIGHT MODAL (⌘K) ── */}
+      {searchOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-start justify-center pt-16 sm:pt-24 px-4 animate-in fade-in duration-150">
+          <div 
+            className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-xl w-full overflow-hidden animate-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Search Input Bar */}
+            <div className="p-4 border-b border-slate-200 flex items-center gap-3">
+              <Search className="w-5 h-5 text-brand-600 shrink-0" />
+              <input
+                ref={searchInputRef}
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Jump to patients, appointments, billing, pharmacy or lab..."
+                className="w-full text-sm font-medium text-slate-800 placeholder-slate-400 bg-transparent outline-none"
+              />
+              <button
+                type="button"
+                onClick={() => setSearchOpen(false)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Quick Suggestions / Shortcuts */}
+            <div className="p-3 max-h-96 overflow-y-auto space-y-1 text-xs">
+              <div className="px-3 py-1 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                Quick Navigation Shortcuts
+              </div>
+              {filteredShortcuts.map((item) => {
+                const ItemIcon = item.icon;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => {
+                      if (setActiveTab) setActiveTab(item.id);
+                      setSearchOpen(false);
+                      setSearchQuery('');
+                    }}
+                    className="w-full text-left px-3.5 py-2.5 rounded-xl hover:bg-slate-100 flex items-center justify-between transition group"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="w-7 h-7 rounded-lg bg-slate-100 group-hover:bg-brand-50 text-slate-600 group-hover:text-brand-600 flex items-center justify-center transition">
+                        <ItemIcon className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-slate-800 group-hover:text-brand-700 transition">{item.label}</p>
+                        <p className="text-[10px] text-slate-400">{item.category}</p>
+                      </div>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-brand-600 transition group-hover:translate-x-0.5" />
+                  </button>
+                );
+              })}
+              {filteredShortcuts.length === 0 && (
+                <div className="p-6 text-center text-slate-400">
+                  No matching hospital views found for "{searchQuery}"
+                </div>
+              )}
+            </div>
+
+            {/* Footer Hint */}
+            <div className="px-4 py-2.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-[11px] text-slate-500">
+              <span>Use <kbd className="font-mono bg-white px-1.5 py-0.5 rounded border border-slate-200">↑</kbd> <kbd className="font-mono bg-white px-1.5 py-0.5 rounded border border-slate-200">↓</kbd> to navigate</span>
+              <span>Press <kbd className="font-mono bg-white px-1.5 py-0.5 rounded border border-slate-200">ESC</kbd> to exit</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── PRACTITIONER / USER PROFILE MODAL ── */}
       <Modal
         isOpen={showProfileModal}
         onClose={() => setShowProfileModal(false)}
-        title="Doctor & Clinical Practitioner Profile"
+        title="Practitioner & Account Details"
         maxWidth="max-w-2xl"
       >
         <div className="space-y-6 text-xs text-slate-700">
-          {/* Top 3D Doctor Header Card */}
           <div className="p-5 rounded-2xl bg-gradient-to-br from-slate-900 via-sky-950 to-indigo-950 text-white shadow-xl relative overflow-hidden">
-            <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-sky-500/20 rounded-full blur-2xl pointer-events-none"></div>
-
             <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="flex items-center space-x-4">
                 <div className="relative">
                   <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-sky-400 to-indigo-500 p-0.5 shadow-lg">
                     <div className="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center font-black text-2xl text-white">
-                      {user?.fullName?.charAt(0) || 'D'}
+                      {user?.fullName?.charAt(0) || 'U'}
                     </div>
                   </div>
                   <span className="absolute -bottom-1 -right-1 bg-emerald-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full border border-slate-950">
                     ACTIVE
                   </span>
                 </div>
-
                 <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-lg font-black text-white">{user?.fullName || 'Dr. Rajesh Sharma, MD'}</h3>
-                    <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-[10px] font-bold">
-                      VERIFIED
-                    </span>
-                  </div>
-                  <p className="text-sky-200 text-xs mt-0.5 font-medium">
-                    {user?.specialization || 'Internal Medicine & Diabetology'}
+                  <h3 className="text-lg font-black text-white">{user?.fullName || 'Dr. Practitioner'}</h3>
+                  <p className="text-sky-300 text-xs font-medium">
+                    {user?.specialization || 'Clinical Healthcare Provider'}
                   </p>
                   <p className="text-slate-400 text-[11px] mt-0.5">
-                    Department: <strong className="text-white">{user?.department || 'General Medicine'}</strong>
+                    {tenant?.name || 'Lazfort Memorial Hospital'} &bull; Indiranagar Campus
                   </p>
                 </div>
               </div>
 
-              <div className="sm:text-right space-y-1">
-                <span className="text-[10px] uppercase font-bold tracking-wider text-sky-300 block">Registration License</span>
-                <span className="font-mono font-bold text-xs bg-white/10 px-2.5 py-1 rounded-lg border border-white/20 inline-block">
-                  {user?.licenseNumber || 'MCI-2008-41029'}
+              <div className="sm:text-right">
+                <span className="inline-block px-3 py-1 rounded-full bg-sky-500/20 text-sky-300 border border-sky-400/30 font-bold text-[10px] tracking-wide uppercase">
+                  {formatRole(user?.role)}
                 </span>
-                <p className="text-[10px] text-slate-400">Karnataka Medical Council</p>
+                <p className="text-[10px] text-slate-400 mt-1">Status: Fully Verified</p>
               </div>
             </div>
           </div>
 
-          {/* Clinical KPIs & Performance */}
-          <div className="grid grid-cols-3 gap-3 text-center">
-            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-              <span className="text-slate-400 text-[11px] block">Consultation Fee</span>
-              <span className="text-base font-black text-slate-900 mono">₹{user?.consultationFee || 600}</span>
-            </div>
-            <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200">
-              <span className="text-emerald-700 text-[11px] block font-semibold">Active Since</span>
-              <span className="text-base font-black text-emerald-900 mono">2018</span>
-            </div>
-            <div className="p-3 bg-sky-50 rounded-xl border border-sky-200">
-              <span className="text-sky-700 text-[11px] block font-semibold">Patients Consulted</span>
-              <span className="text-base font-black text-sky-950 mono">1,482+</span>
-            </div>
-          </div>
-
-          {/* Account Details Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Contact & Branch */}
-            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-2.5">
-              <h4 className="font-bold text-slate-800 text-xs uppercase tracking-wider">Contact & OPD Location</h4>
-              
-              <div className="flex items-center space-x-2 text-slate-600">
-                <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                <span>{user?.email || 'dr.rajesh@lazfort.com'}</span>
-              </div>
-
-              <div className="flex items-center space-x-2 text-slate-600">
-                <Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                <span className="font-mono">{user?.phone || '+91 98450 22002'}</span>
-              </div>
-
-              <div className="flex items-center space-x-2 text-slate-600">
-                <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                <span>Main Campus &bull; 1st Floor, OPD Wing A, Room 104</span>
-              </div>
+            <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Email Address</span>
+              <p className="font-bold text-slate-800 text-xs">{user?.email || 'doctor@lazfort.com'}</p>
             </div>
-
-            {/* Shift & Security Privileges */}
-            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-2.5">
-              <h4 className="font-bold text-slate-800 text-xs uppercase tracking-wider">Schedule & Privileges</h4>
-
-              <div className="flex items-center space-x-2 text-slate-600">
-                <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                <span>OPD Hours: <strong>09:00 AM - 04:30 PM (Mon-Sat)</strong></span>
-              </div>
-
-              <div className="flex items-center space-x-2 text-slate-600">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>Clinical Authorization: <strong>BR-07 Finalize & Rx Lock</strong></span>
-              </div>
-
-              <div className="flex items-center space-x-2 text-slate-600">
-                <Lock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                <span>Session: <strong>Encrypted JWT (24h)</strong></span>
-              </div>
+            <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Department</span>
+              <p className="font-bold text-slate-800 text-xs">{user?.department || 'Clinical Operations'}</p>
+            </div>
+            <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">License / Registration</span>
+              <p className="font-bold text-slate-800 text-xs">{user?.licenseNumber || 'MCI-2015-88492'}</p>
+            </div>
+            <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Tenant Mesh Scoped</span>
+              <p className="font-bold text-slate-800 text-xs">{tenant?._id || 'tenant_lazfort_blr_01'}</p>
             </div>
           </div>
 
-          {/* Action buttons */}
-          <div className="flex justify-between items-center pt-3 border-t border-slate-200">
-            <span className="text-[11px] text-slate-400">
-              Lazfort Hospital ERP &bull; Practitioner ID: {user?.userId || 'USR-DOC-001'}
-            </span>
-            <div className="space-x-2">
-              <button
-                onClick={() => {
-                  setShowProfileModal(false);
-                  alert('Profile settings update dialog');
-                }}
-                className="px-3.5 py-2 border border-slate-200 rounded-xl hover:bg-slate-50 font-bold text-slate-700 transition"
-              >
-                Edit Preferences
-              </button>
-              <button
-                onClick={() => {
-                  setShowProfileModal(false);
-                  logout();
-                }}
-                className="px-3.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl font-bold transition inline-flex items-center gap-1.5"
-              >
-                <LogOut className="w-3.5 h-3.5" />
-                <span>Sign Out</span>
-              </button>
-            </div>
+          <div className="flex justify-end pt-2">
+            <button
+              type="button"
+              onClick={() => setShowProfileModal(false)}
+              className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold transition text-xs shadow-sm"
+            >
+              Done & Close
+            </button>
           </div>
         </div>
       </Modal>

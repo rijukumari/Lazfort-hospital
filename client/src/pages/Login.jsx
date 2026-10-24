@@ -90,7 +90,7 @@ export default function Login() {
               <span className="text-[10px] text-brand-600 font-semibold">Select Panel</span>
             </div>
             
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {demoAccounts.map((acc) => {
                 const isSelected = activeRole === acc.role;
                 return (

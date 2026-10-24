@@ -6,13 +6,33 @@ const serviceCatalogSchema = new mongoose.Schema({
   name: { type: String, required: true },
   category: { 
     type: String, 
-    enum: ['consultation', 'laboratory', 'radiology', 'procedure', 'nursing', 'pharmacy', 'bed_ward'],
+    enum: [
+      'consultation', 
+      'laboratory', 
+      'radiology', 
+      'procedure', 
+      'nursing', 
+      'pharmacy', 
+      'bed_ward',
+      'emergency',
+      'critical_care',
+      'ambulance'
+    ],
     required: true 
   },
   department: { type: String, required: true },
+  branchId: { type: String, default: 'LZF-HQ' },
   standardPrice: { type: Number, required: true, min: 0 },
   taxPercent: { type: Number, default: 0, min: 0 },
   description: { type: String },
+  bookingEnabled: { type: Boolean, default: true },
+  status: { 
+    type: String, 
+    enum: ['Active', 'Inactive', 'Maintenance'], 
+    default: 'Active' 
+  },
+  contactPhone: { type: String },
+  instructions: { type: String },
   active: { type: Boolean, default: true }
 }, { timestamps: true });
 

@@ -7,7 +7,7 @@ import {
   Check,
   CheckCircle2,
   AlertCircle,
-  Edit2,
+  Pencil,
   Eye,
   Power,
   Layers,
@@ -238,7 +238,7 @@ export default function SaaSSubscriptionPlans() {
                     className="p-2 border border-slate-200 rounded-xl text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"
                     title="Edit Plan"
                   >
-                    <Edit2 className="w-3.5 h-3.5" />
+                    <Pencil className="w-3.5 h-3.5" />
                   </button>
                 </div>
 

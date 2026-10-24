@@ -284,9 +284,9 @@ export default function DoctorEncounter({ initialAppointment }) {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 min-w-0">
       {/* Left Column: Waiting Queue Drawer */}
-      <div className="lg:col-span-3 bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex flex-col h-[calc(100vh-7rem)] overflow-hidden">
+      <div className="lg:col-span-4 xl:col-span-3 bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex flex-col max-h-72 lg:max-h-none lg:h-[calc(100vh-6rem)] overflow-hidden shrink-0">
         <div className="pb-3 border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Clock className="w-4 h-4 text-brand-600" />
@@ -299,7 +299,7 @@ export default function DoctorEncounter({ initialAppointment }) {
           </span>
         </div>
 
-        <div className="flex-1 overflow-y-auto space-y-2 mt-3 pr-1">
+        <div className="flex-1 overflow-y-auto space-y-2 mt-3 pr-1 custom-scrollbar">
           {activeQueue.length === 0 ? (
             <p className="text-xs text-slate-400 text-center py-8 italic">No waiting patients in your queue.</p>
           ) : (
@@ -321,7 +321,7 @@ export default function DoctorEncounter({ initialAppointment }) {
                     {apt.status === 'in_consultation' ? 'In Room' : 'Waiting'}
                   </span>
                 </div>
-                <p className="font-bold text-slate-900 mt-1">{apt.patientName}</p>
+                <p className="font-bold text-slate-900 mt-1 truncate">{apt.patientName}</p>
                 <p className="text-slate-500 text-[11px]">
                   UHID: <span className="font-mono">{apt.patientId}</span>
                 </p>
@@ -337,22 +337,22 @@ export default function DoctorEncounter({ initialAppointment }) {
       </div>
 
       {/* Right Column: Clinician Consultation Workspace */}
-      <div className="lg:col-span-9 space-y-5">
+      <div className="lg:col-span-8 xl:col-span-9 space-y-5 min-w-0">
         {selectedAppointment ? (
           <>
             {/* Patient Header Banner */}
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-600 to-sky-700 text-white flex items-center justify-center font-bold text-lg shadow-sm">
+            <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="flex items-start gap-3 sm:gap-4 min-w-0">
+                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-brand-600 to-sky-700 text-white flex items-center justify-center font-bold text-base sm:text-lg shadow-sm shrink-0">
                   {selectedAppointment.patientName.charAt(0)}
                 </div>
-                <div>
-                  <div className="flex items-center space-x-3">
-                    <h2 className="text-lg font-bold text-slate-900">{selectedAppointment.patientName}</h2>
-                    <span className="font-mono font-bold text-xs bg-slate-100 text-slate-800 px-2 py-0.5 rounded border border-slate-300">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h2 className="text-base sm:text-lg font-bold text-slate-900 truncate">{selectedAppointment.patientName}</h2>
+                    <span className="font-mono font-bold text-[11px] sm:text-xs bg-slate-100 text-slate-800 px-2 py-0.5 rounded border border-slate-300">
                       UHID: {selectedAppointment.patientId}
                     </span>
-                    <span className="text-xs font-semibold text-brand-700 bg-brand-50 px-2 py-0.5 rounded border border-brand-200">
+                    <span className="text-[11px] sm:text-xs font-semibold text-brand-700 bg-brand-50 px-2 py-0.5 rounded border border-brand-200">
                       Token: {selectedAppointment.tokenNumber}
                     </span>
                   </div>
@@ -363,9 +363,9 @@ export default function DoctorEncounter({ initialAppointment }) {
               </div>
 
               {/* Status and Action Buttons */}
-              <div className="flex items-center space-x-2">
+              <div className="flex flex-wrap items-center gap-2 w-full md:w-auto shrink-0">
                 {isFinalized ? (
-                  <div className="flex items-center space-x-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 px-3.5 py-1.5 rounded-xl text-xs font-bold">
+                  <div className="flex items-center space-x-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 px-3.5 py-2 rounded-xl text-xs font-bold w-full md:w-auto justify-center">
                     <Lock className="w-4 h-4 text-emerald-600" />
                     <span>Encounter Finalized & Locked</span>
                   </div>
@@ -374,14 +374,14 @@ export default function DoctorEncounter({ initialAppointment }) {
                     <button
                       onClick={handleSaveDraft}
                       disabled={saving}
-                      className="px-4 py-2 border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-xs rounded-xl transition"
+                      className="px-4 py-2.5 min-h-[44px] sm:min-h-0 flex-1 md:flex-initial flex items-center justify-center border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-xs rounded-xl transition"
                     >
                       Save Draft
                     </button>
                     <button
                       onClick={handleFinalize}
                       disabled={saving}
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-4 py-2 rounded-xl shadow-md shadow-emerald-500/20 transition flex items-center space-x-1.5"
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-4 py-2.5 min-h-[44px] sm:min-h-0 flex-1 md:flex-initial flex items-center justify-center rounded-xl shadow-md shadow-emerald-500/20 transition space-x-1.5"
                     >
                       <ShieldCheck className="w-4 h-4" />
                       <span>{saving ? 'Processing...' : 'Finalize & Issue Rx'}</span>
@@ -635,93 +635,103 @@ export default function DoctorEncounter({ initialAppointment }) {
               </div>
 
               {/* Medicine Regimen Table */}
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {medicines.map((med, idx) => (
-                  <div key={idx} className="grid grid-cols-12 gap-2 p-2 bg-slate-50 rounded-xl border border-slate-200 items-center">
-                    <div className="col-span-4">
+                  <div key={idx} className="p-3 bg-slate-50/90 rounded-xl border border-slate-200/90 space-y-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center">
+                      <div className="sm:col-span-5">
+                        <label className="text-[10px] text-slate-400 font-bold block sm:hidden mb-0.5">Medicine Name & Strength</label>
+                        <input
+                          type="text"
+                          disabled={isFinalized}
+                          placeholder="Medicine Name (e.g. Tab Metformin 500mg)"
+                          value={med.medicineName}
+                          onChange={e => {
+                            const updated = [...medicines];
+                            updated[idx].medicineName = e.target.value;
+                            setMedicines(updated);
+                          }}
+                          className="w-full px-2.5 py-2 sm:py-1.5 bg-white border border-slate-200 rounded-lg font-medium text-xs"
+                        />
+                      </div>
+                      <div className="grid grid-cols-3 sm:col-span-6 gap-2">
+                        <div>
+                          <label className="text-[10px] text-slate-400 font-bold block sm:hidden mb-0.5">Route</label>
+                          <select
+                            disabled={isFinalized}
+                            value={med.route}
+                            onChange={e => {
+                              const updated = [...medicines];
+                              updated[idx].route = e.target.value;
+                              setMedicines(updated);
+                            }}
+                            className="w-full px-2 py-2 sm:py-1.5 bg-white border border-slate-200 rounded-lg text-xs"
+                          >
+                            <option value="Oral">Oral</option>
+                            <option value="IV">IV</option>
+                            <option value="IM">IM</option>
+                            <option value="Sublingual">Sublingual</option>
+                            <option value="Topical">Topical</option>
+                            <option value="Inhalation">Inhalation</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="text-[10px] text-slate-400 font-bold block sm:hidden mb-0.5">Freq</label>
+                          <input
+                            type="text"
+                            disabled={isFinalized}
+                            placeholder="1-0-1"
+                            value={med.frequency}
+                            onChange={e => {
+                              const updated = [...medicines];
+                              updated[idx].frequency = e.target.value;
+                              setMedicines(updated);
+                            }}
+                            className="w-full px-2 py-2 sm:py-1.5 bg-white border border-slate-200 rounded-lg text-center text-xs"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] text-slate-400 font-bold block sm:hidden mb-0.5">Days</label>
+                          <input
+                            type="number"
+                            disabled={isFinalized}
+                            placeholder="5"
+                            value={med.durationDays}
+                            onChange={e => {
+                              const updated = [...medicines];
+                              updated[idx].durationDays = Number(e.target.value);
+                              setMedicines(updated);
+                            }}
+                            className="w-full px-2 py-2 sm:py-1.5 bg-white border border-slate-200 rounded-lg text-center text-xs"
+                          />
+                        </div>
+                      </div>
+                      <div className="sm:col-span-1 flex justify-end sm:justify-center">
+                        {!isFinalized && (
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveMedicine(idx)}
+                            className="text-slate-400 hover:text-rose-600 p-1.5 rounded-lg hover:bg-rose-50 transition"
+                            title="Remove Medicine"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                    <div>
                       <input
                         type="text"
                         disabled={isFinalized}
-                        placeholder="Medicine Name (e.g. Tab Metformin 500mg)"
-                        value={med.medicineName}
-                        onChange={e => {
-                          const updated = [...medicines];
-                          updated[idx].medicineName = e.target.value;
-                          setMedicines(updated);
-                        }}
-                        className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg font-medium"
-                      />
-                    </div>
-                    <div className="col-span-2">
-                      <select
-                        disabled={isFinalized}
-                        value={med.route}
-                        onChange={e => {
-                          const updated = [...medicines];
-                          updated[idx].route = e.target.value;
-                          setMedicines(updated);
-                        }}
-                        className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg"
-                      >
-                        <option value="Oral">Oral</option>
-                        <option value="IV">IV</option>
-                        <option value="IM">IM</option>
-                        <option value="Sublingual">Sublingual</option>
-                        <option value="Topical">Topical</option>
-                        <option value="Inhalation">Inhalation</option>
-                      </select>
-                    </div>
-                    <div className="col-span-2">
-                      <input
-                        type="text"
-                        disabled={isFinalized}
-                        placeholder="Frequency (1-0-1)"
-                        value={med.frequency}
-                        onChange={e => {
-                          const updated = [...medicines];
-                          updated[idx].frequency = e.target.value;
-                          setMedicines(updated);
-                        }}
-                        className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-center"
-                      />
-                    </div>
-                    <div className="col-span-1">
-                      <input
-                        type="number"
-                        disabled={isFinalized}
-                        placeholder="Days"
-                        value={med.durationDays}
-                        onChange={e => {
-                          const updated = [...medicines];
-                          updated[idx].durationDays = Number(e.target.value);
-                          setMedicines(updated);
-                        }}
-                        className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-center"
-                      />
-                    </div>
-                    <div className="col-span-2">
-                      <input
-                        type="text"
-                        disabled={isFinalized}
-                        placeholder="Instructions"
+                        placeholder="Specific patient instructions (e.g. Take after food with warm water)"
                         value={med.instructions}
                         onChange={e => {
                           const updated = [...medicines];
                           updated[idx].instructions = e.target.value;
                           setMedicines(updated);
                         }}
-                        className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg"
+                        className="w-full px-2.5 py-2 sm:py-1.5 bg-white border border-slate-200 rounded-lg text-xs"
                       />
-                    </div>
-                    <div className="col-span-1 text-center">
-                      {!isFinalized && (
-                        <button
-                          onClick={() => handleRemoveMedicine(idx)}
-                          className="text-slate-400 hover:text-rose-600 p-1"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      )}
                     </div>
                   </div>
                 ))}
@@ -744,7 +754,7 @@ export default function DoctorEncounter({ initialAppointment }) {
 
                 <div className="space-y-2">
                   {labOrders.map((lab, idx) => (
-                    <div key={idx} className="flex items-center space-x-2 bg-slate-50 p-2 rounded-xl border border-slate-200">
+                    <div key={idx} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
                       <input
                         type="text"
                         disabled={isFinalized}
@@ -755,7 +765,7 @@ export default function DoctorEncounter({ initialAppointment }) {
                           updated[idx].testName = e.target.value;
                           setLabOrders(updated);
                         }}
-                        className="flex-1 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg"
+                        className="flex-1 px-2.5 py-2 sm:py-1.5 bg-white border border-slate-200 rounded-lg text-xs"
                       />
                       <input
                         type="text"
@@ -767,15 +777,19 @@ export default function DoctorEncounter({ initialAppointment }) {
                           updated[idx].clinicalNotes = e.target.value;
                           setLabOrders(updated);
                         }}
-                        className="flex-1 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg"
+                        className="flex-1 px-2.5 py-2 sm:py-1.5 bg-white border border-slate-200 rounded-lg text-xs"
                       />
                       {!isFinalized && (
-                        <button
-                          onClick={() => handleRemoveLabOrder(idx)}
-                          className="text-slate-400 hover:text-rose-600 p-1.5"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <div className="flex justify-end sm:justify-center">
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveLabOrder(idx)}
+                            className="text-slate-400 hover:text-rose-600 p-1.5 rounded-lg hover:bg-rose-50 transition"
+                            title="Remove Test"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       )}
                     </div>
                   ))}

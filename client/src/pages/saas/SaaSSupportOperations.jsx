@@ -12,7 +12,7 @@ import {
   Clock,
   Send,
   RefreshCw,
-  Sliders,
+  SlidersHorizontal,
   Check,
   Server,
   Zap,
@@ -149,8 +149,8 @@ export default function SaaSSupportOperations({ initialTab = 'tickets' }) {
             </span>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
+          <div className="overflow-x-auto custom-scrollbar">
+            <table className="w-full text-left text-xs min-w-[700px]">
               <thead className="bg-slate-50/75 text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-100">
                 <tr>
                   <th className="p-4">Ticket ID</th>

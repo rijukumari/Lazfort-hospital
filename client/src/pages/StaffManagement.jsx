@@ -21,7 +21,7 @@ import {
   Building2,
   Users,
   Shield,
-  Edit2,
+  Pencil,
   ChevronRight,
   MoreVertical,
   Check
@@ -317,103 +317,83 @@ export default function StaffManagement() {
 
   return (
     <div className="w-full space-y-6 pb-16 animate-fadeIn">
-      {/* ================= 1. PAGE HEADER ================= */}
-      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 text-xs text-sky-600 font-bold uppercase tracking-wider mb-1">
-            <UserCog className="w-4 h-4" />
-            <span>Clinical Governance &amp; Administration</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-            Hospital Staff, Clinicians &amp; RBAC Directory
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Manage clinical privileges, practitioner licenses, department allocations, and consultation tariffs.
-          </p>
+      {/* ================= 1. 3D COMMAND BANNER MATCHING NAVY / SKY THEME ================= */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-950 via-[#0a1e36] to-[#082b47] border border-sky-500/25 p-5 sm:p-6 lg:p-7 text-white shadow-2xl">
+        <div className="absolute -right-10 -bottom-10 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        {/* Continuous ECG Neon Line */}
+        <div className="absolute inset-0 opacity-20 flex items-center pointer-events-none">
+          <svg className="w-full h-24" viewBox="0 0 1200 100" fill="none">
+            <path
+              className="animate-ecg stroke-sky-400"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M0,50 L200,50 L220,50 L230,20 L240,80 L250,5 L260,95 L270,50 L350,50 L500,50 L520,50 L530,20 L540,80 L550,5 L560,95 L570,50 L650,50 L800,50 L820,50 L830,20 L840,80 L850,5 L860,95 L870,50 L950,50 L1100,50 L1120,50 L1130,20 L1140,80 L1150,5 L1160,95 L1170,50 L1200,50"
+            />
+          </svg>
         </div>
 
-        <div className="flex items-center gap-3 self-start md:self-auto">
-          {/* View Mode Toggle */}
-          <div className="flex items-center bg-slate-100 p-1 rounded-2xl border border-slate-200/80">
-            <button
-              onClick={() => setViewMode('grid')}
-              className={`p-2 rounded-xl transition ${
-                viewMode === 'grid'
-                  ? 'bg-white text-sky-600 shadow-sm'
-                  : 'text-slate-500 hover:text-slate-900'
-              }`}
-              title="Grid View"
-            >
-              <LayoutGrid className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setViewMode('table')}
-              className={`p-2 rounded-xl transition ${
-                viewMode === 'table'
-                  ? 'bg-white text-sky-600 shadow-sm'
-                  : 'text-slate-500 hover:text-slate-900'
-              }`}
-              title="Table View"
-            >
-              <TableIcon className="w-4 h-4" />
-            </button>
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5 sm:gap-6">
+          <div className="space-y-1.5 sm:space-y-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[10px] sm:text-[11px] uppercase font-extrabold tracking-widest bg-sky-500/20 text-sky-300 border border-sky-400/30 px-3 py-1 rounded-full">
+                Clinical Governance &amp; Administration
+              </span>
+              <span className="text-[11px] sm:text-xs text-slate-300 font-semibold flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> Real-time RBAC Roster
+              </span>
+            </div>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight text-white flex items-center gap-2.5">
+              <span>Hospital Staff, Clinicians &amp; RBAC Directory</span>
+            </h1>
+            <p className="text-xs text-sky-200/80 max-w-xl leading-relaxed">
+              Manage clinical privileges, practitioner licenses, department allocations, and consultation tariffs.
+            </p>
           </div>
-
-          {/* Add Staff Button */}
-          <button
-            onClick={handleOpenAddModal}
-            className="px-4 py-2.5 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs sm:text-sm rounded-2xl shadow-md transition shadow-sky-600/20 flex items-center gap-2 shrink-0 cursor-pointer"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Add Staff Member</span>
-          </button>
         </div>
       </div>
 
-      {/* ================= 2. FOUR KPI TILES ================= */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-sm">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Personnel</span>
-            <div className="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center">
-              <Users className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="text-2xl font-black text-slate-900 font-mono">{totalCount} Staff</div>
-          <span className="text-[11px] text-emerald-600 font-semibold block mt-1">&bull; Active Hospital Roster</span>
+      {/* 4 Stat Cards Row Below Banner */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 sm:gap-4">
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-sm space-y-1 hover:shadow-md transition">
+          <span className="text-[11px] font-semibold text-slate-400 block">Total Personnel</span>
+          <span className="text-2xl sm:text-3xl font-black text-slate-900 block tracking-tight font-mono">
+            {totalCount} Staff
+          </span>
+          <span className="text-[10px] text-sky-600 font-medium block">
+            Active hospital roster
+          </span>
         </div>
 
-        <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-sm">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Clinicians &amp; Specialists</span>
-            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-              <Stethoscope className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="text-2xl font-black text-slate-900 font-mono">{doctorCount} Doctors</div>
-          <span className="text-[11px] text-slate-500 block mt-1">OPD &amp; Inpatient Care</span>
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-sm space-y-1 hover:shadow-md transition">
+          <span className="text-[11px] font-semibold text-slate-400 block">Clinicians &amp; Specialists</span>
+          <span className="text-2xl sm:text-3xl font-black text-emerald-600 block tracking-tight font-mono">
+            {doctorCount} Doctors
+          </span>
+          <span className="text-[10px] text-emerald-600 font-medium block">
+            NABH credentialed practitioners
+          </span>
         </div>
 
-        <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-sm">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Nursing Care Staff</span>
-            <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
-              <ClipboardList className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="text-2xl font-black text-slate-900 font-mono">{nurseCount} Nurses</div>
-          <span className="text-[11px] text-slate-500 block mt-1">Triage &amp; Critical Care</span>
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-sm space-y-1 hover:shadow-md transition">
+          <span className="text-[11px] font-semibold text-slate-400 block">Nursing &amp; Care Staff</span>
+          <span className="text-2xl sm:text-3xl font-black text-slate-900 block tracking-tight font-mono">
+            {nurseCount} Nurses
+          </span>
+          <span className="text-[10px] text-slate-500 font-medium block">
+            Triage &amp; critical care
+          </span>
         </div>
 
-        <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-sm">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Operations &amp; Billing</span>
-            <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
-              <ShieldCheck className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="text-2xl font-black text-slate-900 font-mono">{opsCount} Executives</div>
-          <span className="text-[11px] text-slate-500 block mt-1">Admin, Cashier &amp; Pharmacy</span>
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-sm space-y-1 hover:shadow-md transition">
+          <span className="text-[11px] font-semibold text-slate-400 block">Operations &amp; Admin</span>
+          <span className="text-2xl sm:text-3xl font-black text-amber-600 block tracking-tight font-mono">
+            {opsCount} Executives
+          </span>
+          <span className="text-[10px] text-amber-600 font-medium block">
+            Admin, cashier &amp; pharmacy
+          </span>
         </div>
       </div>
 
@@ -461,9 +441,40 @@ export default function StaffManagement() {
             ))}
           </select>
 
-          <span className="text-slate-400 font-medium px-2 hidden sm:inline">
-            Showing {filteredStaff.length} results
-          </span>
+          {/* View Mode Toggle Button */}
+          <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 shrink-0">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`p-1.5 rounded-lg transition ${
+                viewMode === 'grid'
+                  ? 'bg-white text-slate-900 shadow-sm font-bold'
+                  : 'text-slate-400 hover:text-slate-700'
+              }`}
+              title="Grid View"
+            >
+              <LayoutGrid className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setViewMode('table')}
+              className={`p-1.5 rounded-lg transition ${
+                viewMode === 'table'
+                  ? 'bg-white text-slate-900 shadow-sm font-bold'
+                  : 'text-slate-400 hover:text-slate-700'
+              }`}
+              title="Table View"
+            >
+              <TableIcon className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Add Staff Button moved here from top banner */}
+          <button
+            onClick={handleOpenAddModal}
+            className="px-3.5 py-2 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs rounded-xl shadow-md transition transform hover:scale-105 active:scale-95 flex items-center gap-1.5 shrink-0 cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add Staff Member</span>
+          </button>
         </div>
       </div>
 
@@ -570,7 +581,7 @@ export default function StaffManagement() {
                     onClick={() => handleOpenEditModal(member)}
                     className="flex-1 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition"
                   >
-                    <Edit2 className="w-3 h-3" />
+                    <Pencil className="w-3 h-3" />
                     <span>Edit Profile</span>
                   </button>
 
@@ -593,8 +604,8 @@ export default function StaffManagement() {
       ) : (
         /* TABLE VIEW */
         <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
+          <div className="overflow-x-auto custom-scrollbar">
+            <table className="w-full text-left text-xs min-w-[700px]">
               <thead className="bg-slate-50/80 text-slate-600 uppercase font-bold border-b border-slate-200">
                 <tr>
                   <th className="p-4">Practitioner / Staff Name</th>

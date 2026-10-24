@@ -111,7 +111,10 @@ export const AuthProvider = ({ children }) => {
     name: 'Lazfort Memorial Hospital & Research Centre',
     code: 'LZF-HQ',
     currencySymbol: '₹',
-    city: 'Bengaluru'
+    city: 'Bengaluru',
+    hasBranches: true,
+    branchesCount: 2,
+    branchLimit: 5
   });
   const [loading, setLoading] = useState(false);
 

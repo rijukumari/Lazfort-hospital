@@ -16,7 +16,7 @@ import {
   Calendar,
   Clock,
   Award,
-  Edit3,
+  Pencil,
   Download,
   Laptop,
   Smartphone,
@@ -279,7 +279,7 @@ export default function HospitalAdminProfile() {
               onClick={() => setIsEditModalOpen(true)}
               className="bg-white hover:bg-sky-50 text-slate-900 font-extrabold text-xs px-4 py-2 rounded-full shadow-lg transition transform hover:scale-105 active:scale-95 flex items-center gap-2"
             >
-              <Edit3 className="w-3.5 h-3.5 text-sky-600" />
+              <Pencil className="w-3.5 h-3.5 text-sky-600" />
               <span>Edit Profile</span>
             </button>
             <button
@@ -458,7 +458,7 @@ export default function HospitalAdminProfile() {
                   onClick={() => setIsEditModalOpen(true)}
                   className="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold flex items-center gap-1.5 transition"
                 >
-                  <Edit3 className="w-3.5 h-3.5 text-slate-500" />
+                  <Pencil className="w-3.5 h-3.5 text-slate-500" />
                   <span>Update Info</span>
                 </button>
               </div>

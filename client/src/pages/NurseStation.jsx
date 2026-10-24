@@ -133,12 +133,12 @@ export default function NurseStation() {
 
   return (
     <div className="space-y-6">
-      {/* 3D Hero Command Banner with Animated Continuous Cardiac ECG Waveform */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-sky-950 to-indigo-950 border border-white/15 p-6 sm:p-7 text-white shadow-2xl">
+      {/* 3D Hero Command Banner with Animated Continuous Cardiac ECG Waveform & Integrated Stat Cards */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-950 via-[#0a1e36] to-[#082b47] border border-sky-500/25 p-5 sm:p-6 lg:p-7 text-white shadow-2xl">
         <div className="absolute -right-10 -bottom-10 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
         {/* Continuous ECG Neon Line */}
-        <div className="absolute inset-0 opacity-20 flex items-center pointer-events-none">
+        <div className="absolute inset-0 opacity-25 flex items-center pointer-events-none">
           <svg className="w-full h-24" viewBox="0 0 1200 100" fill="none">
             <path
               className="animate-ecg stroke-sky-400"
@@ -153,7 +153,7 @@ export default function NurseStation() {
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <span className="text-[11px] uppercase font-extrabold tracking-widest bg-sky-500/30 text-sky-300 border border-sky-400/30 px-3 py-1 rounded-full">
+              <span className="text-[10px] sm:text-[11px] uppercase font-extrabold tracking-widest bg-sky-500/20 text-sky-300 border border-sky-400/30 px-3 py-1 rounded-full">
                 PERSONA: NURSE WORKSTATION &amp; TRIAGE STATION
               </span>
               <span className="text-xs text-slate-300 flex items-center gap-1.5">
@@ -170,14 +170,14 @@ export default function NurseStation() {
             </p>
           </div>
 
-          {/* Action Buttons - Pill style matching Dashboard */}
-          <div className="flex flex-wrap items-center gap-3">
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 sm:gap-3 w-full md:w-auto">
             <button 
               onClick={() => {
                 setSelectedTask(tasks[0]);
                 setShowVitalsModal(true);
               }}
-              className="bg-white hover:bg-sky-50 text-slate-900 font-extrabold text-xs px-5 py-2.5 rounded-full shadow-lg transition transform hover:scale-105 active:scale-95 flex items-center gap-2"
+              className="bg-white hover:bg-slate-100 text-slate-900 font-extrabold text-xs px-4 sm:px-5 py-2.5 rounded-xl shadow-lg transition transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2 min-h-[44px] sm:min-h-0"
             >
               <HeartPulse className="w-4 h-4 text-sky-600" />
               <span>Record Vitals (Quick Entry)</span>
@@ -188,13 +188,13 @@ export default function NurseStation() {
                 const el = document.getElementById('nurse-handoff-textarea');
                 if (el) el.focus();
               }}
-              className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-extrabold text-xs px-5 py-2.5 rounded-full shadow-lg shadow-amber-500/30 transition transform hover:scale-105 active:scale-95 flex items-center gap-2"
+              className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-extrabold text-xs px-4 sm:px-5 py-2.5 rounded-xl shadow-lg shadow-orange-500/30 transition transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2 min-h-[44px] sm:min-h-0"
             >
               <ClipboardList className="w-4 h-4" />
               <span>Shift Handoff Log</span>
             </button>
 
-            <div className="bg-white/10 text-white border border-white/20 font-bold text-xs px-4 py-2.5 rounded-full flex items-center gap-2 backdrop-blur-md">
+            <div className="bg-slate-800/80 text-slate-200 border border-slate-600/50 font-bold text-xs px-4 py-2.5 rounded-xl flex items-center justify-center gap-2 backdrop-blur-md min-h-[44px] sm:min-h-0 shadow-lg shadow-black/20">
               <Clock className="w-4 h-4 text-sky-300" />
               <span>Shift: 08:00 - 16:00 IST</span>
             </div>
@@ -202,70 +202,46 @@ export default function NurseStation() {
         </div>
       </div>
 
-      {/* 4 Interactive Stat Cards matching Dashboard Style */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md transition">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Pending Triage Tasks</span>
-            <div className="w-10 h-10 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center">
-              <Clock className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="text-3xl font-black text-slate-900 tracking-tight">
+      {/* 4 Stat Cards Row Below Banner */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 sm:gap-4">
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-sm space-y-1 hover:shadow-md transition">
+          <span className="text-[11px] font-semibold text-slate-400 block">Pending Triage Tasks</span>
+          <span className="text-2xl sm:text-3xl font-black text-amber-600 block tracking-tight font-mono">
             {tasks.filter(t => t.status === 'Pending').length}
-          </div>
-          <div className="flex items-center gap-1.5 text-xs mt-2">
-            <span className="font-bold text-sky-600">Active</span>
-            <span className="text-slate-500">Assigned to your shift</span>
-          </div>
+          </span>
+          <span className="text-[10px] text-amber-600 font-medium block">
+            Active &bull; Assigned to your shift
+          </span>
         </div>
 
-        <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md transition">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Patients in Queue</span>
-            <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
-              <Users className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="text-3xl font-black text-slate-900 tracking-tight">
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-sm space-y-1 hover:shadow-md transition">
+          <span className="text-[11px] font-semibold text-slate-400 block">Patients in Queue</span>
+          <span className="text-2xl sm:text-3xl font-black text-sky-600 block tracking-tight font-mono">
             {tasks.length}
-          </div>
-          <div className="flex items-center gap-1.5 text-xs mt-2">
-            <span className="font-bold text-amber-600">OPD Queue</span>
-            <span className="text-slate-500">2 currently with doctor</span>
-          </div>
+          </span>
+          <span className="text-[10px] text-sky-600 font-medium block">
+            OPD Queue &bull; 2 with clinician
+          </span>
         </div>
 
-        <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md transition">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Encounters Completed</span>
-            <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-              <CheckCircle2 className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="text-3xl font-black text-slate-900 tracking-tight">
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-sm space-y-1 hover:shadow-md transition">
+          <span className="text-[11px] font-semibold text-slate-400 block">Encounters Completed</span>
+          <span className="text-2xl sm:text-3xl font-black text-emerald-600 block tracking-tight font-mono">
             {tasks.filter(t => t.status === 'Completed').length}
-          </div>
-          <div className="flex items-center gap-1.5 text-xs mt-2">
-            <span className="font-bold text-emerald-600">100% Locked</span>
-            <span className="text-slate-500">Time-stamped audit ready</span>
-          </div>
+          </span>
+          <span className="text-[10px] text-emerald-600 font-medium block">
+            100% Locked &bull; Audit ready
+          </span>
         </div>
 
-        <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md transition">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Active Shift Handoffs</span>
-            <div className="w-10 h-10 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center">
-              <ClipboardList className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="text-3xl font-black text-slate-900 tracking-tight">
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-sm space-y-1 hover:shadow-md transition">
+          <span className="text-[11px] font-semibold text-slate-400 block">Active Shift Handoffs</span>
+          <span className="text-2xl sm:text-3xl font-black text-slate-900 block tracking-tight font-mono">
             {handoffNotes.length}
-          </div>
-          <div className="flex items-center gap-1.5 text-xs mt-2">
-            <span className="font-bold text-purple-600">Shift</span>
-            <span className="text-slate-500">08:00 - 16:00 IST</span>
-          </div>
+          </span>
+          <span className="text-[10px] text-slate-500 font-medium block">
+            Shift &bull; 08:00 - 16:00 IST
+          </span>
         </div>
       </div>
 
@@ -380,7 +356,7 @@ export default function NurseStation() {
 
       {/* Vitals Record Dedicated Page View */}
       {showVitalsModal && (
-        <div className="fixed top-16 bottom-0 right-0 left-0 md:left-[var(--sidebar-width,18rem)] z-20 bg-slate-50 overflow-y-auto animate-in fade-in duration-150">
+        <div className="fixed top-0 bottom-0 right-0 left-0 lg:left-[var(--sidebar-width,18rem)] z-50 bg-slate-50 overflow-y-auto animate-in fade-in duration-150">
           <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full space-y-6">
             <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-sm flex items-center gap-4">
               <button
@@ -515,17 +491,17 @@ export default function NurseStation() {
                   />
                 </div>
 
-                <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                <div className="flex flex-col-reverse sm:flex-row justify-end gap-2.5 pt-4 border-t border-slate-100">
                   <button
                     type="button"
                     onClick={() => setShowVitalsModal(false)}
-                    className="px-5 py-2.5 border border-slate-200 text-slate-700 font-bold text-xs rounded-xl hover:bg-slate-50 transition"
+                    className="px-5 py-2.5 border border-slate-200 text-slate-700 font-bold text-xs rounded-xl hover:bg-slate-50 transition min-h-[44px] sm:min-h-0 flex items-center justify-center"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-2.5 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white font-bold text-xs rounded-xl shadow-md shadow-sky-600/25 transition flex items-center gap-2"
+                    className="px-6 py-2.5 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white font-bold text-xs rounded-xl shadow-md shadow-sky-600/25 transition flex items-center justify-center gap-2 min-h-[44px] sm:min-h-0"
                   >
                     <FileCheck className="w-4 h-4" />
                     <span>Save &amp; Authenticate Vitals</span>

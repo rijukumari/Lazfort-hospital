@@ -14,7 +14,7 @@ import {
   Search,
   Filter,
   Eye,
-  Edit2,
+  Pencil,
   Power,
   ChevronLeft,
   ChevronRight,
@@ -44,8 +44,6 @@ export default function SaaSPlatformOverview({ setActiveTab }) {
   const [actionTarget, setActionTarget] = useState(null);
   const [actionType, setActionType] = useState('Suspend'); // 'Activate' or 'Suspend'
   const [confirmReason, setConfirmReason] = useState('');
-  const [notificationDrawerOpen, setNotificationDrawerOpen] = useState(false);
-  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
 
   // Edit form state
   const [editFormData, setEditFormData] = useState({
@@ -133,249 +131,166 @@ export default function SaaSPlatformOverview({ setActiveTab }) {
 
   return (
     <div className="space-y-6">
-      {/* Top Header Card */}
-      <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] font-extrabold uppercase tracking-wider bg-sky-50 text-sky-700 border border-sky-200 px-3 py-0.5 rounded-full">
-              SaaS Super Admin Platform
-            </span>
-            <span className="text-xs text-slate-500 font-medium">
-              &bull; {currentDateFormatted}
-            </span>
-          </div>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">
-            Welcome back, {user?.fullName || 'Vikramaditya Singhania'}
-          </h1>
-          <p className="text-xs text-slate-500">
-            Global governance, hospital tenant lifecycles, subscriptions, and platform operations.
-          </p>
+      {/* 3D SaaS Command Banner matching user reference image */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-950 via-[#0a1e36] to-[#082b47] border border-sky-500/25 p-5 sm:p-6 lg:p-7 text-white shadow-2xl">
+        <div className="absolute -right-10 -bottom-10 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        {/* Continuous Cardiac ECG Line in background */}
+        <div className="absolute inset-0 flex items-center opacity-10 pointer-events-none overflow-hidden">
+          <svg className="w-full h-24 stroke-sky-400 fill-none" preserveAspectRatio="none" viewBox="0 0 1200 100">
+            <path d="M0,50 L200,50 L220,20 L230,80 L240,10 L250,90 L260,50 L500,50 L520,20 L530,80 L540,10 L550,90 L560,50 L800,50 L820,20 L830,80 L840,10 L850,90 L860,50 L1200,50" strokeWidth="2" />
+          </svg>
         </div>
 
-        {/* Right Actions: Notifications & Profile Dropdown */}
-        <div className="flex items-center gap-3">
-          {/* Notification Button */}
-          <div className="relative">
-            <button
-              onClick={() => setNotificationDrawerOpen(!notificationDrawerOpen)}
-              className="relative p-2.5 rounded-xl border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition"
-              title="Platform Broadcasts & Alerts"
-            >
-              <Bell className="w-4 h-4" />
-              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-rose-500" />
-            </button>
-
-            {notificationDrawerOpen && (
-              <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-slate-200 py-3 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-                <div className="px-4 pb-2 border-b border-slate-100 flex items-center justify-between">
-                  <span className="font-extrabold text-xs text-slate-800">Platform Notifications</span>
-                  <span className="text-[10px] text-slate-400">{notifications.length} recent</span>
-                </div>
-                <div className="divide-y divide-slate-50 max-h-64 overflow-y-auto">
-                  {notifications.map(n => (
-                    <div key={n.id} className="p-3 text-xs hover:bg-slate-50 transition">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-bold text-slate-800">{n.title}</span>
-                        <span className="text-[9px] px-1.5 py-0.2 rounded bg-sky-50 text-sky-700 font-semibold">{n.type}</span>
-                      </div>
-                      <p className="text-slate-500 text-[11px] leading-tight line-clamp-2">{n.message}</p>
-                      <span className="text-[10px] text-slate-400 block mt-1">{n.date}</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="pt-2 px-3 border-t border-slate-100 text-center">
-                  <button
-                    onClick={() => {
-                      setNotificationDrawerOpen(false);
-                      setActiveTab('saas_notifications');
-                    }}
-                    className="text-xs text-sky-600 hover:text-sky-700 font-bold"
-                  >
-                    View All Notifications &rarr;
-                  </button>
-                </div>
-              </div>
-            )}
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-1.5 sm:space-y-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider bg-sky-500/20 text-sky-300 border border-sky-400/30 px-3 py-1 rounded-full">
+                SaaS Super Admin Platform
+              </span>
+              <span className="text-[11px] sm:text-xs text-emerald-400 font-semibold flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> Live &bull; {currentDateFormatted}
+              </span>
+            </div>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight">
+              Welcome back, {user?.fullName || 'Vikramaditya Singhania'}
+            </h1>
+            <p className="text-xs text-sky-200/80 max-w-xl leading-relaxed">
+              Global governance, hospital tenant lifecycles, subscriptions, and platform operations.
+            </p>
           </div>
 
-          {/* Profile Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-              className="flex items-center space-x-2 p-1.5 pr-3 rounded-2xl border border-slate-200 hover:bg-slate-50 transition"
-            >
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 text-white flex items-center justify-center font-bold text-xs">
-                {user?.fullName?.charAt(0) || 'V'}
-              </div>
-              <div className="text-left hidden sm:block">
-                <span className="text-xs font-bold text-slate-800 block leading-tight">Super Admin</span>
-                <span className="text-[10px] text-slate-400">Global Root</span>
-              </div>
-            </button>
 
-            {profileDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-2xl border border-slate-200 py-1.5 z-50 text-xs">
-                <button
-                  onClick={() => {
-                    setProfileDropdownOpen(false);
-                    setActiveTab('saas_profile');
-                  }}
-                  className="w-full text-left px-3.5 py-2 hover:bg-slate-50 text-slate-700 font-semibold"
-                >
-                  My Profile
-                </button>
-                <button
-                  onClick={() => {
-                    setProfileDropdownOpen(false);
-                    setActiveTab('saas_password');
-                  }}
-                  className="w-full text-left px-3.5 py-2 hover:bg-slate-50 text-slate-700 font-semibold"
-                >
-                  Change Password
-                </button>
-                <div className="my-1 border-t border-slate-100" />
-                <button
-                  onClick={() => {
-                    setProfileDropdownOpen(false);
-                    logout();
-                  }}
-                  className="w-full text-left px-3.5 py-2 hover:bg-rose-50 text-rose-600 font-semibold"
-                >
-                  Sign Out
-                </button>
-              </div>
-            )}
-          </div>
         </div>
       </div>
 
-      {/* 8 Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* 8 Metric Cards - Responsive 2-col on mobile, 4-col on tablet & desktop */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         {/* 1. Total Hospitals */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm space-y-2">
+        <div className="bg-white rounded-2xl p-3.5 sm:p-5 border border-slate-200/80 shadow-sm space-y-1.5 sm:space-y-2">
           <div className="flex items-center justify-between text-slate-500">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Hospitals</span>
-            <div className="p-2 bg-sky-50 text-sky-600 rounded-xl">
-              <Building2 className="w-4 h-4" />
+            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Hospitals</span>
+            <div className="p-1.5 sm:p-2 bg-sky-50 text-sky-600 rounded-xl">
+              <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
-          <div className="flex items-baseline space-x-2">
-            <span className="text-2xl font-black font-mono text-slate-900">{totalHospitals}</span>
-            <span className="text-[11px] font-semibold text-emerald-600">+2 this month</span>
+          <div className="flex items-baseline space-x-1.5 sm:space-x-2">
+            <span className="text-xl sm:text-2xl font-black font-mono text-slate-900">{totalHospitals}</span>
+            <span className="text-[10px] sm:text-[11px] font-semibold text-emerald-600">+2 MoM</span>
           </div>
-          <p className="text-[11px] text-slate-400">Onboarded health institutions</p>
+          <p className="text-[10px] sm:text-[11px] text-slate-400 truncate">Onboarded health nodes</p>
         </div>
 
         {/* 2. Active Tenants */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm space-y-2">
+        <div className="bg-white rounded-2xl p-3.5 sm:p-5 border border-slate-200/80 shadow-sm space-y-1.5 sm:space-y-2">
           <div className="flex items-center justify-between text-slate-500">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Active Tenants</span>
-            <div className="p-2 bg-emerald-50 text-emerald-600 rounded-xl">
-              <CheckCircle2 className="w-4 h-4" />
+            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400">Active Tenants</span>
+            <div className="p-1.5 sm:p-2 bg-emerald-50 text-emerald-600 rounded-xl">
+              <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
-          <div className="flex items-baseline space-x-2">
-            <span className="text-2xl font-black font-mono text-slate-900">{activeTenants}</span>
-            <span className="text-[11px] font-semibold text-emerald-600">Operational</span>
+          <div className="flex items-baseline space-x-1.5 sm:space-x-2">
+            <span className="text-xl sm:text-2xl font-black font-mono text-slate-900">{activeTenants}</span>
+            <span className="text-[10px] sm:text-[11px] font-semibold text-emerald-600">Live</span>
           </div>
-          <p className="text-[11px] text-slate-400">Tenants with active clinical traffic</p>
+          <p className="text-[10px] sm:text-[11px] text-slate-400 truncate">Active clinical traffic</p>
         </div>
 
         {/* 3. Suspended Tenants */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm space-y-2">
+        <div className="bg-white rounded-2xl p-3.5 sm:p-5 border border-slate-200/80 shadow-sm space-y-1.5 sm:space-y-2">
           <div className="flex items-center justify-between text-slate-500">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Suspended Tenants</span>
-            <div className="p-2 bg-amber-50 text-amber-600 rounded-xl">
-              <AlertTriangle className="w-4 h-4" />
+            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400">Suspended</span>
+            <div className="p-1.5 sm:p-2 bg-amber-50 text-amber-600 rounded-xl">
+              <AlertTriangle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
-          <div className="flex items-baseline space-x-2">
-            <span className="text-2xl font-black font-mono text-amber-700">{suspendedTenants}</span>
-            <span className="text-[11px] font-semibold text-amber-600">Review required</span>
+          <div className="flex items-baseline space-x-1.5 sm:space-x-2">
+            <span className="text-xl sm:text-2xl font-black font-mono text-amber-700">{suspendedTenants}</span>
+            <span className="text-[10px] sm:text-[11px] font-semibold text-amber-600">Review</span>
           </div>
-          <p className="text-[11px] text-slate-400">Overdue bills or policy hold</p>
+          <p className="text-[10px] sm:text-[11px] text-slate-400 truncate">Overdue policy hold</p>
         </div>
 
         {/* 4. Total Platform Users */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm space-y-2">
+        <div className="bg-white rounded-2xl p-3.5 sm:p-5 border border-slate-200/80 shadow-sm space-y-1.5 sm:space-y-2">
           <div className="flex items-center justify-between text-slate-500">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Platform Users</span>
-            <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl">
-              <Users className="w-4 h-4" />
+            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400">Platform Users</span>
+            <div className="p-1.5 sm:p-2 bg-indigo-50 text-indigo-600 rounded-xl">
+              <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
-          <div className="flex items-baseline space-x-2">
-            <span className="text-2xl font-black font-mono text-slate-900">{totalUsers}</span>
-            <span className="text-[11px] font-semibold text-indigo-600">Across all hospitals</span>
+          <div className="flex items-baseline space-x-1.5 sm:space-x-2">
+            <span className="text-xl sm:text-2xl font-black font-mono text-slate-900">{totalUsers}</span>
+            <span className="text-[10px] sm:text-[11px] font-semibold text-indigo-600">Doctors/Staff</span>
           </div>
-          <p className="text-[11px] text-slate-400">Doctors, nurses, staff & admins</p>
+          <p className="text-[10px] sm:text-[11px] text-slate-400 truncate">Across all hospitals</p>
         </div>
 
         {/* 5. Active Subscriptions */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm space-y-2">
+        <div className="bg-white rounded-2xl p-3.5 sm:p-5 border border-slate-200/80 shadow-sm space-y-1.5 sm:space-y-2">
           <div className="flex items-center justify-between text-slate-500">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Active Subscriptions</span>
-            <div className="p-2 bg-purple-50 text-purple-600 rounded-xl">
-              <CreditCard className="w-4 h-4" />
+            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400">Subscriptions</span>
+            <div className="p-1.5 sm:p-2 bg-purple-50 text-purple-600 rounded-xl">
+              <CreditCard className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
-          <div className="flex items-baseline space-x-2">
-            <span className="text-2xl font-black font-mono text-slate-900">{activeSubscriptions}</span>
-            <span className="text-[11px] font-semibold text-purple-600">Recurring SaaS</span>
+          <div className="flex items-baseline space-x-1.5 sm:space-x-2">
+            <span className="text-xl sm:text-2xl font-black font-mono text-slate-900">{activeSubscriptions}</span>
+            <span className="text-[10px] sm:text-[11px] font-semibold text-purple-600">Recurring</span>
           </div>
-          <p className="text-[11px] text-slate-400">Basic, Pro & Enterprise tiers</p>
+          <p className="text-[10px] sm:text-[11px] text-slate-400 truncate">Basic, Pro &amp; Enterprise</p>
         </div>
 
         {/* 6. Monthly Recurring Revenue */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm space-y-2">
+        <div className="bg-white rounded-2xl p-3.5 sm:p-5 border border-slate-200/80 shadow-sm space-y-1.5 sm:space-y-2">
           <div className="flex items-center justify-between text-slate-500">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Monthly Recurring Revenue</span>
-            <div className="p-2 bg-emerald-50 text-emerald-600 rounded-xl">
-              <TrendingUp className="w-4 h-4" />
+            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400">MRR Revenue</span>
+            <div className="p-1.5 sm:p-2 bg-emerald-50 text-emerald-600 rounded-xl">
+              <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
-          <div className="flex items-baseline space-x-2">
-            <span className="text-2xl font-black font-mono text-slate-900">
+          <div className="flex items-baseline space-x-1.5 sm:space-x-2">
+            <span className="text-xl sm:text-2xl font-black font-mono text-slate-900 truncate">
               ₹{(mrrTotal).toLocaleString('en-IN')}
             </span>
           </div>
-          <p className="text-[11px] text-slate-400">Estimated MRR in INR</p>
+          <p className="text-[10px] sm:text-[11px] text-slate-400 truncate">Platform Monthly Ingress</p>
         </div>
 
         {/* 7. Pending Support Tickets */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm space-y-2">
+        <div className="bg-white rounded-2xl p-3.5 sm:p-5 border border-slate-200/80 shadow-sm space-y-1.5 sm:space-y-2">
           <div className="flex items-center justify-between text-slate-500">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Pending Tickets</span>
-            <div className="p-2 bg-rose-50 text-rose-600 rounded-xl">
-              <LifeBuoy className="w-4 h-4" />
+            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400">Support Tickets</span>
+            <div className="p-1.5 sm:p-2 bg-rose-50 text-rose-600 rounded-xl">
+              <LifeBuoy className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
-          <div className="flex items-baseline space-x-2">
-            <span className="text-2xl font-black font-mono text-slate-900">{pendingTickets}</span>
-            <span className="text-[11px] font-semibold text-amber-600">Open / Active</span>
+          <div className="flex items-baseline space-x-1.5 sm:space-x-2">
+            <span className="text-xl sm:text-2xl font-black font-mono text-slate-900">{pendingTickets}</span>
+            <span className="text-[10px] sm:text-[11px] font-semibold text-amber-600">Active</span>
           </div>
-          <p className="text-[11px] text-slate-400">Awaiting technical resolution</p>
+          <p className="text-[10px] sm:text-[11px] text-slate-400 truncate">Tech resolution queue</p>
         </div>
 
         {/* 8. System Health */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm space-y-2">
+        <div className="bg-white rounded-2xl p-3.5 sm:p-5 border border-slate-200/80 shadow-sm space-y-1.5 sm:space-y-2">
           <div className="flex items-center justify-between text-slate-500">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">System Health</span>
-            <div className="p-2 bg-emerald-50 text-emerald-600 rounded-xl">
-              <Activity className="w-4 h-4" />
+            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400">System Health</span>
+            <div className="p-1.5 sm:p-2 bg-emerald-50 text-emerald-600 rounded-xl">
+              <Activity className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
-          <div className="flex items-baseline space-x-2">
-            <span className="text-2xl font-black font-mono text-emerald-700">{systemHealth}</span>
+          <div className="flex items-baseline space-x-1.5 sm:space-x-2">
+            <span className="text-xl sm:text-2xl font-black font-mono text-emerald-700">{systemHealth}</span>
           </div>
-          <p className="text-[11px] text-slate-400">All 3 regional clusters green</p>
+          <p className="text-[10px] sm:text-[11px] text-slate-400 truncate">3 regional clusters green</p>
         </div>
       </div>
 
-      {/* Hospital Tenants Section with Search, Filters, Table */}
-      <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
+      {/* Hospital Tenants Section with Search, Filters, Responsive Table/Cards */}
+      <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden min-w-0 max-w-full">
         {/* Table Header Controls */}
-        <div className="p-6 border-b border-slate-100 flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+        <div className="p-4 sm:p-6 border-b border-slate-100 flex flex-col xl:flex-row xl:items-center justify-between gap-4">
           <div>
             <h2 className="text-base font-extrabold text-slate-900">Hospital Tenants Directory</h2>
             <p className="text-xs text-slate-500 mt-0.5">
@@ -383,9 +298,9 @@ export default function SaaSPlatformOverview({ setActiveTab }) {
             </p>
           </div>
 
-          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 w-full xl:w-auto">
             {/* Search */}
-            <div className="relative flex-1 sm:w-56 min-w-[160px]">
+            <div className="relative w-full sm:w-56">
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
               <input
                 type="text"
@@ -399,39 +314,40 @@ export default function SaaSPlatformOverview({ setActiveTab }) {
               />
             </div>
 
-            {/* Status Filter */}
-            <select
-              value={statusFilter}
-              onChange={(e) => {
-                setStatusFilter(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500 shrink-0"
-            >
-              <option value="All">All Statuses</option>
-              <option value="Active">Active Only</option>
-              <option value="Suspended">Suspended Only</option>
-            </select>
+            {/* Status & Plan Filters Grid on mobile */}
+            <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 w-full sm:w-auto">
+              <select
+                value={statusFilter}
+                onChange={(e) => {
+                  setStatusFilter(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="w-full sm:w-auto text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500"
+              >
+                <option value="All">All Statuses</option>
+                <option value="Active">Active Only</option>
+                <option value="Suspended">Suspended Only</option>
+              </select>
 
-            {/* Plan Filter */}
-            <select
-              value={planFilter}
-              onChange={(e) => {
-                setPlanFilter(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500 shrink-0"
-            >
-              <option value="All">All Plans</option>
-              <option value="Basic">Basic Plan</option>
-              <option value="Professional">Professional Plan</option>
-              <option value="Enterprise">Enterprise Plan</option>
-            </select>
+              <select
+                value={planFilter}
+                onChange={(e) => {
+                  setPlanFilter(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="w-full sm:w-auto text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500"
+              >
+                <option value="All">All Plans</option>
+                <option value="Basic">Basic Plan</option>
+                <option value="Professional">Professional Plan</option>
+                <option value="Enterprise">Enterprise Plan</option>
+              </select>
+            </div>
 
-            {/* Onboard Button - strictly on the same line next to All Plans */}
+            {/* Onboard Button */}
             <button
               onClick={() => setActiveTab('saas_onboarding')}
-              className="bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-md shadow-sky-600/20 transition flex items-center gap-1.5 whitespace-nowrap shrink-0"
+              className="w-full sm:w-auto bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-md shadow-sky-600/20 transition flex items-center justify-center gap-1.5 whitespace-nowrap active:scale-95 shrink-0"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Onboard Hospital</span>
@@ -439,32 +355,34 @@ export default function SaaSPlatformOverview({ setActiveTab }) {
           </div>
         </div>
 
-        {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50/75 text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-100">
+        {/* DESKTOP TABLE VIEW (Visible strictly on md+ screens >= 768px) */}
+        <div className="hidden md:block overflow-x-auto custom-scrollbar">
+          <table className="w-full text-left text-xs table-auto border-collapse">
+            <thead className="sticky top-0 z-20 bg-slate-100/95 backdrop-blur-md text-slate-700 uppercase tracking-wider font-bold border-b border-slate-200 shadow-xs">
               <tr>
-                <th className="p-4">Hospital Name</th>
-                <th className="p-4">Tenant ID</th>
-                <th className="p-4">City</th>
-                <th className="p-4">Subscription Plan</th>
-                <th className="p-4">Total Users</th>
-                <th className="p-4">Status</th>
-                <th className="p-4">Registration Date</th>
-                <th className="p-4 text-right">Actions</th>
+                <th className="py-3.5 px-4 whitespace-nowrap sticky top-0 z-20 bg-slate-100/95">Hospital Name</th>
+                <th className="py-3.5 px-3 whitespace-nowrap sticky top-0 z-20 bg-slate-100/95">Tenant ID</th>
+                <th className="py-3.5 px-3 whitespace-nowrap sticky top-0 z-20 bg-slate-100/95">City</th>
+                <th className="py-3.5 px-3 whitespace-nowrap sticky top-0 z-20 bg-slate-100/95">Subscription Plan</th>
+                <th className="py-3.5 px-3 whitespace-nowrap sticky top-0 z-20 bg-slate-100/95">Users</th>
+                <th className="py-3.5 px-3 whitespace-nowrap text-center sticky top-0 z-20 bg-slate-100/95">Status</th>
+                <th className="py-3.5 px-3 whitespace-nowrap sticky top-0 z-20 bg-slate-100/95">Registration Date</th>
+                <th className="py-3.5 px-4 pr-6 whitespace-nowrap text-right sticky right-0 top-0 z-30 bg-slate-100/95 shadow-[-6px_0_8px_-3px_rgba(0,0,0,0.08)]">
+                  Actions
+                </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 text-slate-700">
+            <tbody className="divide-y divide-slate-100 text-slate-700 bg-white">
               {paginatedTenants.length > 0 ? (
                 paginatedTenants.map((tenant) => (
-                  <tr key={tenant.id} className="hover:bg-slate-50/80 transition">
-                    <td className="p-4 font-bold text-slate-900">
-                      <div>{tenant.name}</div>
+                  <tr key={tenant.id} className="hover:bg-slate-50/80 transition group">
+                    <td className="py-3.5 px-4">
+                      <div className="font-bold text-slate-900">{tenant.name}</div>
                       <span className="text-[10px] text-slate-400 font-normal">{tenant.email}</span>
                     </td>
-                    <td className="p-4 font-mono font-bold text-sky-700">{tenant.id}</td>
-                    <td className="p-4">{tenant.city}, {tenant.state}</td>
-                    <td className="p-4">
+                    <td className="py-3.5 px-3 font-mono font-bold text-sky-700 whitespace-nowrap">{tenant.id}</td>
+                    <td className="py-3.5 px-3 whitespace-nowrap">{tenant.city}, {tenant.state}</td>
+                    <td className="py-3.5 px-3 whitespace-nowrap">
                       <span className={`px-2.5 py-0.5 rounded-full font-bold text-[10px] border ${
                         tenant.plan === 'Enterprise'
                           ? 'bg-purple-50 text-purple-700 border-purple-200'
@@ -475,10 +393,10 @@ export default function SaaSPlatformOverview({ setActiveTab }) {
                         {tenant.plan}
                       </span>
                     </td>
-                    <td className="p-4 font-mono font-semibold">
+                    <td className="py-3.5 px-3 font-mono font-semibold whitespace-nowrap">
                       {tenant.totalUsers} / {tenant.userLimit}
                     </td>
-                    <td className="p-4">
+                    <td className="py-3.5 px-3 whitespace-nowrap text-center">
                       <span className={`px-2.5 py-0.5 rounded-full font-bold text-[10px] border ${
                         tenant.status === 'Active'
                           ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
@@ -487,22 +405,22 @@ export default function SaaSPlatformOverview({ setActiveTab }) {
                         {tenant.status}
                       </span>
                     </td>
-                    <td className="p-4 font-mono text-[11px] text-slate-500">{tenant.regDate}</td>
-                    <td className="p-4 text-right">
-                      <div className="flex items-center justify-end gap-1.5">
+                    <td className="py-3.5 px-3 font-mono text-[11px] text-slate-500 whitespace-nowrap">{tenant.regDate}</td>
+                    <td className="py-3.5 px-4 pr-6 text-right whitespace-nowrap sticky right-0 z-10 bg-white group-hover:bg-slate-50/90 transition shadow-[-6px_0_8px_-3px_rgba(0,0,0,0.08)]">
+                      <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => handleOpenView(tenant)}
                           className="p-1.5 text-slate-500 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition"
                           title="View Details"
                         >
-                          <Eye className="w-3.5 h-3.5" />
+                          <Eye className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleOpenEdit(tenant)}
                           className="p-1.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
                           title="Edit Hospital"
                         >
-                          <Edit2 className="w-3.5 h-3.5" />
+                          <Pencil className="w-4 h-4" />
                         </button>
                         {tenant.status === 'Active' ? (
                           <button
@@ -510,7 +428,7 @@ export default function SaaSPlatformOverview({ setActiveTab }) {
                             className="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
                             title="Suspend Hospital"
                           >
-                            <Power className="w-3.5 h-3.5" />
+                            <Power className="w-4 h-4" />
                           </button>
                         ) : (
                           <button
@@ -518,7 +436,7 @@ export default function SaaSPlatformOverview({ setActiveTab }) {
                             className="p-1.5 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition"
                             title="Activate Hospital"
                           >
-                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            <CheckCircle2 className="w-4 h-4" />
                           </button>
                         )}
                       </div>
@@ -536,8 +454,110 @@ export default function SaaSPlatformOverview({ setActiveTab }) {
           </table>
         </div>
 
+        {/* MOBILE CARD VIEW (Strictly visible on mobile screens < 768px) */}
+        <div className="md:hidden divide-y divide-slate-100">
+          {paginatedTenants.length > 0 ? (
+            paginatedTenants.map((tenant) => (
+              <div key={tenant.id} className="p-4 space-y-3 bg-white hover:bg-slate-50/50 transition">
+                {/* Header: Name + Status */}
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <h3 className="font-bold text-slate-900 text-sm leading-snug">{tenant.name}</h3>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="font-mono text-[11px] font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded border border-sky-100 shrink-0">
+                        {tenant.id}
+                      </span>
+                      <span className="text-slate-400 text-xs">&bull;</span>
+                      <span className="text-xs text-slate-500 truncate">{tenant.city}, {tenant.state}</span>
+                    </div>
+                  </div>
+                  <span className={`px-2.5 py-0.5 rounded-full font-bold text-[10px] border shrink-0 ${
+                    tenant.status === 'Active'
+                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                      : 'bg-rose-50 text-rose-700 border-rose-200'
+                  }`}>
+                    {tenant.status}
+                  </span>
+                </div>
+
+                {/* Plan + Users Allocation */}
+                <div className="p-3 bg-slate-50/80 rounded-2xl border border-slate-100 space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className={`px-2 py-0.5 rounded-full font-bold text-[10px] border ${
+                      tenant.plan === 'Enterprise'
+                        ? 'bg-purple-50 text-purple-700 border-purple-200'
+                        : tenant.plan === 'Professional'
+                        ? 'bg-sky-50 text-sky-700 border-sky-200'
+                        : 'bg-slate-100 text-slate-700 border-slate-200'
+                    }`}>
+                      {tenant.plan} Plan
+                    </span>
+                    <span className="font-mono text-xs font-bold text-slate-800">
+                      {tenant.totalUsers} / {tenant.userLimit} Users
+                    </span>
+                  </div>
+
+                  <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-300 ${
+                        tenant.plan === 'Enterprise' ? 'bg-purple-600' : 'bg-sky-600'
+                      }`}
+                      style={{ width: `${Math.min(100, Math.round((tenant.totalUsers / tenant.userLimit) * 100))}%` }}
+                    ></div>
+                  </div>
+                </div>
+
+                {/* Contact Email & Registration */}
+                <div className="flex items-center justify-between text-[11px] text-slate-400 pt-0.5">
+                  <span className="truncate max-w-[190px]">{tenant.email}</span>
+                  <span className="font-mono text-[10px]">{tenant.regDate}</span>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                  <button
+                    onClick={() => handleOpenView(tenant)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-sky-50 hover:text-sky-700 transition active:scale-95 shadow-xs"
+                  >
+                    <Eye className="w-3.5 h-3.5" />
+                    <span>View</span>
+                  </button>
+                  <button
+                    onClick={() => handleOpenEdit(tenant)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition active:scale-95 shadow-xs"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                    <span>Edit</span>
+                  </button>
+                  {tenant.status === 'Active' ? (
+                    <button
+                      onClick={() => handleOpenConfirm(tenant, 'Suspend')}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-50 text-rose-700 hover:bg-rose-100 transition active:scale-95 shadow-xs"
+                    >
+                      <Power className="w-3.5 h-3.5" />
+                      <span>Suspend</span>
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleOpenConfirm(tenant, 'Activate')}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition active:scale-95 shadow-xs"
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>Activate</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="p-8 text-center text-slate-400 text-xs">
+              No hospital tenants match your search and filter criteria.
+            </div>
+          )}
+        </div>
+
         {/* Pagination */}
-        <div className="p-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+        <div className="p-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
           <span>
             Showing {filteredTenants.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0} to{' '}
             {Math.min(currentPage * itemsPerPage, filteredTenants.length)} of {filteredTenants.length} tenants
@@ -546,7 +566,7 @@ export default function SaaSPlatformOverview({ setActiveTab }) {
             <button
               disabled={currentPage <= 1}
               onClick={() => setCurrentPage(p => p - 1)}
-              className="p-1.5 border border-slate-200 rounded-lg disabled:opacity-40 hover:bg-slate-50"
+              className="p-1.5 border border-slate-200 rounded-lg disabled:opacity-40 hover:bg-slate-50 transition"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
@@ -556,7 +576,7 @@ export default function SaaSPlatformOverview({ setActiveTab }) {
             <button
               disabled={currentPage >= totalPages}
               onClick={() => setCurrentPage(p => p + 1)}
-              className="p-1.5 border border-slate-200 rounded-lg disabled:opacity-40 hover:bg-slate-50"
+              className="p-1.5 border border-slate-200 rounded-lg disabled:opacity-40 hover:bg-slate-50 transition"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
